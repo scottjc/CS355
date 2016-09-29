@@ -87,13 +87,13 @@ public class Square extends Shape {
 	
 	public Point2D.Double clickedCircle(Point2D.Double pt)
 	{
-//		Point2D.Double newpt = worldToObj(pt);
-//		Point2D.Double newstart = worldToObj(start);
-//		Point2D.Double newend = worldToObj(end);
-//		
-//		if(Math.sqrt(Math.pow((newpt.getX() - newstart.getX()),2) + Math.pow((newpt.getY() - newstart.getY()),2)) < 10/2) return start;
-//		if(Math.sqrt(Math.pow((newpt.getX() - newend.getX()),2) + Math.pow((newpt.getY() - newend.getY()),2)) < 10/2) return end;
-//		else return null;
+		//Point2D.Double newpt = worldToObj(pt);
+		//Point2D.Double newcenter = worldToObj(center);
+		
+		double y = (double) center.getY() - getSize()/2 - 30;
+		Point2D.Double circleCenter = new Point2D.Double(center.getX()-10, y);
+		System.out.println("pt is " + pt.toString());
+		if((Math.abs(pt.getX() - circleCenter.getX()) <= 20) && (Math.abs(pt.getY() - circleCenter.getY()) <= 20)) return circleCenter;
 		return null;
 	}
 }

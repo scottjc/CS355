@@ -184,7 +184,7 @@ public class MyView implements ViewRefresher {
 			System.out.println("drawing the halo");
 			double y = (double) s.getCenter().getY() - s.getSize()/2 - 30;
 			Point2D.Double newPoint = new Point2D.Double(s.getCenter().getX()-10, y);
-			System.out.println("center is " + newPoint.toString());
+			System.out.println("circle center is " + newPoint.toString());
 			c = new Circle(outlineShape.getColor(), newPoint, 20);//color center radius
 			DrawingCircle dccsq = new DrawingCircle(c, g2d, outlineShape.getColor());
 			dccsq.drawOutline();

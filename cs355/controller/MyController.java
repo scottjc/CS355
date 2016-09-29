@@ -608,10 +608,22 @@ public class MyController implements CS355Controller {
 		{
 		case SELECT:
 			
-			currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
+			firstPoint = new Point2D.Double(e.getX(), e.getY());
+			if(weSelected)//check again to see if we clicked the circle--------------------------------------------------
+			{
+				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
+				if(pt == null)
+				{
+					System.out.println("we clicked and theres nothing!!!!!!!!!!!!!!!!!!!!!");//check again to see if we clicked the circle--
+					currDrawingShape = null;
+				}
+			}
+			else//if not, we must see if it's a shape seletion only------------------------------------------------------------------
+			{
+				currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
+			}
 			if(currDrawingShape != null)
 			{
-				firstPoint = new Point2D.Double(e.getX(), e.getY());
 				//function to see if we clicked on the rotation circle/ start or endpoint
 				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
 				if(weSelected && pt != null)//--------------------------------------------------------------------------------------weselected
@@ -645,9 +657,9 @@ public class MyController implements CS355Controller {
 					else if(currDrawingShape instanceof Circle){}//nothing for circle
 					else//all other shapes
 					{
+						System.out.println("NOW WE GET TO PROCESS THE ROTATION OF THE OBJECT!!!");
 						
 					}
-
 				}
 
 				//draw around it.
