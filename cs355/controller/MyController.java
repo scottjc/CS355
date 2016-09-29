@@ -608,22 +608,34 @@ public class MyController implements CS355Controller {
 		{
 		case SELECT:
 			
-			firstPoint = new Point2D.Double(e.getX(), e.getY());
-			if(weSelected)//check again to see if we clicked the circle--------------------------------------------------
+//			firstPoint = new Point2D.Double(e.getX(), e.getY());
+//			if(weSelected)//check again to see if we clicked the circle--------------------------------------------------
+//			{
+//				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
+//				if(pt == null)
+//				{
+//					System.out.println("we clicked and theres nothing!!!!!!!!!!!!!!!!!!!!!");//check again to see if we clicked the circle--
+//					currDrawingShape = null;
+//				}
+//			}
+//			else//if not, we must see if it's a shape seletion only------------------------------------------------------------------
+//			{
+//				currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
+//			}
+			if(rotating)
 			{
-				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
-				if(pt == null)
-				{
-					System.out.println("we clicked and theres nothing!!!!!!!!!!!!!!!!!!!!!");//check again to see if we clicked the circle--
-					currDrawingShape = null;
-				}
+				System.out.println("in new click");
+				currDrawingShape = mm.clicked(secondPoint, 4);
+				//Point2D.Double pt = currDrawingShape.clickedCircle(secondPoint);
+				firstPoint = null;
+				secondPoint = null;
+				rotating = false;
 			}
-			else//if not, we must see if it's a shape seletion only------------------------------------------------------------------
-			{
-				currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
-			}
+			else currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
+			
 			if(currDrawingShape != null)
 			{
+				firstPoint = new Point2D.Double(e.getX(), e.getY());
 				//function to see if we clicked on the rotation circle/ start or endpoint
 				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
 				if(weSelected && pt != null)//--------------------------------------------------------------------------------------weselected
@@ -632,7 +644,7 @@ public class MyController implements CS355Controller {
 					rotating = true;
 					if(currDrawingShape instanceof Line)//lines have two, the others have 1
 					{
-						System.out.println("it's line circle");
+						System.out.println("pressed it's line circle");
 						//distinguish between top or bottom
 						Line l = (Line) currDrawingShape;
 						if(pt == l.getStart())
@@ -658,6 +670,7 @@ public class MyController implements CS355Controller {
 					else//all other shapes
 					{
 						System.out.println("NOW WE GET TO PROCESS THE ROTATION OF THE OBJECT!!!");
+						rotating = true;
 						
 					}
 				}
@@ -679,6 +692,7 @@ public class MyController implements CS355Controller {
 				mv.forceRefreshView();
 				mm.forceCalls();
 				weSelected = false;
+				rotating = false;
 			}
 			break;
 		}
@@ -988,7 +1002,7 @@ public class MyController implements CS355Controller {
 			case SELECT:
 			{
 				System.out.println("releasing the shape.");// size is " + mm.getShapesListSize());
-				rotating = false;
+				//rotating = false;
 				break;
 			}
 		}
@@ -1307,10 +1321,10 @@ public class MyController implements CS355Controller {
 				//rotating---------------------------------------------------------------------------------------------------------rotating
 				if(rotating == true)
 				{
-					System.out.println("rotating");
+					//System.out.println("rotating");
 					if(currDrawingShape instanceof Line)//lines have two, the others have 1
 					{
-						//System.out.println("it's line circle");
+						System.out.println("it's line circle");
 						System.out.println("dragged the end of line");
 
 						secondPoint = new Point2D.Double(e.getX(), e.getY());
@@ -1319,6 +1333,30 @@ public class MyController implements CS355Controller {
 						mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
 						mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
 						currDrawingShape = currLine;
+						mv.forceRefreshView();
+					}
+					else if(currDrawingShape instanceof Circle){}//lines have two, the others have 1
+					else
+					{
+						System.out.println("We are rotating now!");
+						secondPoint = new Point2D.Double(e.getX(), e.getY());
+						
+//						double deltaY = (firstPoint.getY() - secondPoint.getY());
+//					    double deltaX = (secondPoint.getX() - firstPoint.getX());
+//					    double result = Math.toDegrees(Math.atan2(deltaY, deltaX)); 
+//					    double rotAngle =  (result < 0) ? (360d + result) : result;
+//						System.out.println("Angle is " + rotAngle); 
+						
+						Double rotAngle = Math.atan2(secondPoint.getX() - currDrawingShape.getCenter().getX(), 
+								-secondPoint.getY() + currDrawingShape.getCenter().getY());
+						// and to make it count 0-360
+						if (rotAngle < 0) {rotAngle += 2 * Math.PI;}
+						System.out.println("Angle is " + rotAngle); 
+						currDrawingShape.setRotation(rotAngle);
+						
+						mm.setShape(mm.getIndexbyShape(currDrawingShape), currDrawingShape);
+						mv.set_currShapeIndex(mm.getIndexbyShape(currDrawingShape));
+						//currDrawingShape = currLine;
 						mv.forceRefreshView();
 					}
 				}

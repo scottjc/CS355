@@ -151,9 +151,26 @@ public class MyView implements ViewRefresher {
 			break;
 			
 		case TRIANGLE:
-			//System.out.println("Draw triangle outline");
-			DrawingTriangle dcc = new DrawingTriangle((Triangle)outlineShape, g2d, outlineShape.getColor());
-			dcc.drawOutline();
+
+			
+			//affine transform for showing this modified shape
+			System.out.println("Draw trianlge outline");
+			Triangle t = ((Triangle)outlineShape);//.objToWorld();//--------------------------------------------------------------
+			DrawingTriangle dcct = new DrawingTriangle((Triangle)outlineShape, g2d, outlineShape.getColor());
+			dcct.drawOutline();
+			
+			//draw the circle plus the rotation.
+			System.out.println("drawing the halo");
+			//double yt = (double) t.getCenter().getY() - t.getHeight()/2 - 30;
+			double minY1 = Math.min(t.getA().getY(), t.getB().getY());
+			double realMin = Math.min(minY1, t.getC().getY());
+			
+			Point2D.Double newPointt = new Point2D.Double(t.getCenter().getX()-10, realMin - 30);
+			System.out.println("circle center is " + newPointt.toString());
+			c = new Circle(outlineShape.getColor(), newPointt, 20);//color center radius
+			DrawingCircle dccre = new DrawingCircle(c, g2d, outlineShape.getColor());
+			dccre.drawOutline();
+			
 			break;
 			
 		case CIRCLE:
@@ -166,10 +183,18 @@ public class MyView implements ViewRefresher {
 		case RECTANGLE:
 			//affine transform for showing this modified shape
 			//System.out.println("Draw rectangle outline");
-			DrawingRectangle dcc2 = new DrawingRectangle((Rectangle)outlineShape, g2d, outlineShape.getColor());
-			dcc2.drawOutline();
+			Rectangle r = ((Rectangle)outlineShape);//.objToWorld();//--------------------------------------------------------------
+			DrawingRectangle dccree = new DrawingRectangle((Rectangle)outlineShape, g2d, outlineShape.getColor());
+			dccree.drawOutline();
 			
-			//halo
+			//draw the circle plus the rotation.
+			System.out.println("drawing the halo");
+			double yr = (double) r.getCenter().getY() - r.getHeight()/2 - 30;
+			Point2D.Double newPointrr = new Point2D.Double(r.getCenter().getX()-10, yr);
+			System.out.println("circle center is " + newPointrr.toString());
+			c = new Circle(outlineShape.getColor(), newPointrr, 20);//color center radius
+			DrawingCircle dccc = new DrawingCircle(c, g2d, outlineShape.getColor());
+			dccc.drawOutline();
 			break;
 			
 		case SQUARE:
@@ -191,12 +216,21 @@ public class MyView implements ViewRefresher {
 			break;
 			
 		case ELLIPSE:
+
 			//affine transform for showing this modified shape
-			//System.out.println("Draw ellipse outline");
-			DrawingEllipse dcc4 = new DrawingEllipse((Ellipse)outlineShape, g2d, outlineShape.getColor());
-			dcc4.drawOutline();
+			//System.out.println("Draw rectangle outline");
+			Ellipse e = ((Ellipse)outlineShape);//.objToWorld();//--------------------------------------------------------------
+			DrawingEllipse dcce = new DrawingEllipse((Ellipse)outlineShape, g2d, outlineShape.getColor());
+			dcce.drawOutline();
 			
-			//halo
+			//draw the circle plus the rotation.
+			System.out.println("drawing the halo");
+			double ye = (double) e.getCenter().getY() - e.getHeight()/2 - 30;
+			Point2D.Double newPointe = new Point2D.Double(e.getCenter().getX()-10, ye);
+			System.out.println("circle center is " + newPointe.toString());
+			c = new Circle(outlineShape.getColor(), newPointe, 20);//color center radius
+			DrawingCircle dccel = new DrawingCircle(c, g2d, outlineShape.getColor());
+			dccel.drawOutline();
 			break;
 		}
 		
