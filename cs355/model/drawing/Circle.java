@@ -89,13 +89,6 @@ public class Circle extends Shape {
 	
 	public Point2D.Double clickedCircle(Point2D.Double pt)
 	{
-//		Point2D.Double newpt = worldToObj(pt);
-//		Point2D.Double newstart = worldToObj(start);
-//		Point2D.Double newend = worldToObj(end);
-//		
-//		if(Math.sqrt(Math.pow((newpt.getX() - newstart.getX()),2) + Math.pow((newpt.getY() - newstart.getY()),2)) < 10/2) return start;
-//		if(Math.sqrt(Math.pow((newpt.getX() - newend.getX()),2) + Math.pow((newpt.getY() - newend.getY()),2)) < 10/2) return end;
-//		else return null;
 		return null;
 	}
 }

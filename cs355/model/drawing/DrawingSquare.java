@@ -23,7 +23,7 @@ public class DrawingSquare {
 		g2d.setColor(currColor);
 		//draw that puppy!
 		//p1x  p1y   p2x    p2y
-		g2d.fillRect((int)squ.getCenter().getX() - (int)(squ.getSize()/2), (int)squ.getCenter().getY() - (int)(squ.getSize()/2), //-------------
+		g2d.fillRect((int)squ.getCenter().getX() - (int)(squ.getSize()/2), (int)squ.getCenter().getY() - (int)(squ.getSize()/2),
 				(int)squ.getSize(), (int)squ.getSize());
 	}
 
@@ -34,11 +34,8 @@ public class DrawingSquare {
 		float thickness = 2;
 		Stroke oldStroke = g2d.getStroke();
 		g2d.setStroke(new BasicStroke(thickness));
-		g2d.drawRect((int)squ.getCenter().getX() - (int)(squ.getSize()/2), (int)squ.getCenter().getY() - (int)(squ.getSize()/2),//-------------
+		g2d.drawRect((int)squ.getCenter().getX() - (int)(squ.getSize()/2), (int)squ.getCenter().getY() - (int)(squ.getSize()/2),
 				(int)squ.getSize(), (int)squ.getSize());	
 		g2d.setStroke(oldStroke);
-		
-		//draw the circle
-		//g2d.drawOval((int)squ.getCenter().getX()-5, (int)squ.getCenter().getY() - 30,  20, 20);
 	}
 }

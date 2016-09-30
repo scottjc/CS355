@@ -77,6 +77,15 @@ public class Line extends Shape {
 			return true;
 		}
 		else return false;
+
+//		 double slope = (newend.y-newstart.y)/(newend.x-newstart.x);
+//         double y = slope * newpt.x + newstart.y;
+//
+//         if((y <= newpt.y + tolerance && y >= newpt.y-tolerance) && (newpt.x >= newstart.x && newpt.x <= newend.x)) {
+//             return true;
+//         }
+//         return false;
+		
 	}
 	
 	//my functions--------------------------------------------------------------------
@@ -102,7 +111,7 @@ public class Line extends Shape {
 	
 	public void translate(Point2D.Double firstPoint, Point2D.Double secondPoint)
 	{
-		System.out.println("in line translate");
+		//System.out.println("in line translate");
 		double xdiff = secondPoint.getX() - firstPoint.getX();
 		double ydiff = secondPoint.getY() - firstPoint.getY();
 		Point2D.Double newStart = new Point2D.Double(start.getX() + xdiff, start.getY() + ydiff);

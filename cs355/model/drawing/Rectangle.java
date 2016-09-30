@@ -109,13 +109,17 @@ public class Rectangle extends Shape {
 	
 	public Point2D.Double clickedCircle(Point2D.Double pt)
 	{
-//		Point2D.Double newpt = worldToObj(pt);
-//		Point2D.Double newstart = worldToObj(start);
-//		Point2D.Double newend = worldToObj(end);
-//		
-//		if(Math.sqrt(Math.pow((newpt.getX() - newstart.getX()),2) + Math.pow((newpt.getY() - newstart.getY()),2)) < 10/2) return start;
-//		if(Math.sqrt(Math.pow((newpt.getX() - newend.getX()),2) + Math.pow((newpt.getY() - newend.getY()),2)) < 10/2) return end;
-//		else return null;
+		Point2D.Double newpt = worldToObj(pt);
+		Point2D.Double newcenter = worldToObj(center);
+		
+		
+		//draw the circle plus the rotation.
+		//System.out.println("drawing the halo");
+		double y = (double) newcenter.getY() - getHeight()/2 - 30;
+		Point2D.Double circleCenter = new Point2D.Double(newcenter.getX()-10, y);
+		//System.out.println("newpt is " + newpt.toString());
+		//System.out.println("circleCenter is " + circleCenter.toString());
+		if((Math.abs(newpt.getX() - circleCenter.getX()) <= 40) && (Math.abs(newpt.getY() - circleCenter.getY()) <= 40)) return center;
 		return null;
 	}
 }

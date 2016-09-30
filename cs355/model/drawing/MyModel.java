@@ -274,9 +274,9 @@ public class MyModel extends CS355Drawing {
 	/**
 	 * Sees if we are currently clicking on a shape
 	 */
-	public Shape clicked(Point2D.Double pt, double tolerance)//reference ok??????????????????????????????????????????????????????????
+	public Shape clicked(Point2D.Double pt, double tolerance)
 	{
-		for(int i = 0; i < shapesList.size(); i++)//ok for clicking?------------------------------------------------------------------------
+		for(int i = 0; i < shapesList.size(); i++)
 		{
 			if(shapesList.get(i).pointInShape(pt, tolerance))
 			{
@@ -296,7 +296,7 @@ public class MyModel extends CS355Drawing {
 	}
 
 	public int getIndexbyShape(cs355.model.drawing.Shape shapy) {
-		for(int i = 0; i < shapesList.size(); i++)//ok for clicking?------------------------------------------------------------------------
+		for(int i = 0; i < shapesList.size(); i++)
 		{
 			if(shapesList.get(i) == shapy)
 			{

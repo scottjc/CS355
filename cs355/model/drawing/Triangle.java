@@ -94,33 +94,35 @@ public class Triangle extends Shape {
 	 */
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
-		
+
 		//get the transformed points for center and for this point-------------------------------------------------------------------------
 		Point2D.Double newpt = worldToObj(pt);
 		Point2D.Double newa = worldToObj(a);
 		Point2D.Double newb = worldToObj(b);
 		Point2D.Double newc = worldToObj(c);
-		
-		//throw new UnsupportedOperationException("Not supported yet.");
-		Point2D.Double first = new Point2D.Double(newpt.getX() - newa.getX(), newpt.getY() - newa.getY());
-		Point2D.Double firstTrans = perpendicular(new Point2D.Double(newb.getX() - newa.getX(), newb.getY() - newa.getY()));
-		double firstNum = first.getX() * firstTrans.getX() + first.getY() * firstTrans.getY();
-		//System.out.println("first num is " + firstNum);
-		
-		Point2D.Double second = new Point2D.Double(newpt.getX() - newb.getX(), newpt.getY() - newb.getY());
-		Point2D.Double secondTrans = perpendicular(new Point2D.Double(newc.getX() - newb.getX(), newc.getY() - newb.getY()));
-		double secondNum = second.getX() * secondTrans.getX() + second.getY() * secondTrans.getY();
-		//System.out.println("second num is " + secondNum);
-		
-		Point2D.Double third = new Point2D.Double(newpt.getX() - newc.getX(), newpt.getY() - newc.getY());
-		Point2D.Double thirdTrans = perpendicular(new Point2D.Double(newa.getX() - newc.getX(), newa.getY() - newc.getY()));
-		double thirdNum = third.getX() * thirdTrans.getX() + third.getY() * thirdTrans.getY();
-		//System.out.println("third num is " + thirdNum);
-		
-		if(firstNum > 0 && secondNum > 0 && thirdNum > 0) return true;
-		else return false;
-		
+
+		/* Calculate area of triangle ABC */
+		float A = area (newa.x, newa.y, newb.x, newb.y, newc.x, newc.y);
+
+		/* Calculate area of triangle PBC */  
+		float A1 = area (newpt.x, newpt.y, newb.x, newb.y, newc.x, newc.y);
+
+		/* Calculate area of triangle PAC */  
+		float A2 = area (newa.x, newa.y, newpt.x, newpt.y, newc.x, newc.y);
+
+		/* Calculate area of triangle PAB */   
+		float A3 = area (newa.x, newa.y, newb.x, newb.y, newpt.x, newpt.y);
+
+		/* Check if sum of A1, A2 and A3 is same as A */
+		return (A == A1 + A2 + A3);
+
 	}
+
+	public float area(double x1, double y1, double x2, double y2, double x3, double y3)
+	{
+	   return (float) Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0);
+	}
+
 	
 	//my functions--------------------------------------------------------------------------------------------------------------
 	public Point2D.Double worldToObj(Point2D.Double pt)
@@ -131,7 +133,7 @@ public class Triangle extends Shape {
 		worldToObj.translate(-center.getX(), -center.getY());
 		Point2D.Double obCoord = new Point2D.Double();
 		worldToObj.transform(pt, obCoord);
-		System.out.println(obCoord);
+		//System.out.println(obCoord);
 		return obCoord;
 	}
 	
@@ -165,13 +167,27 @@ public class Triangle extends Shape {
 	
 	public Point2D.Double clickedCircle(Point2D.Double pt)
 	{
-//		Point2D.Double newpt = worldToObj(pt);
-//		Point2D.Double newstart = worldToObj(start);
-//		Point2D.Double newend = worldToObj(end);
-//		
-//		if(Math.sqrt(Math.pow((newpt.getX() - newstart.getX()),2) + Math.pow((newpt.getY() - newstart.getY()),2)) < 10/2) return start;
-//		if(Math.sqrt(Math.pow((newpt.getX() - newend.getX()),2) + Math.pow((newpt.getY() - newend.getY()),2)) < 10/2) return end;
-//		else return null;
+		Point2D.Double newpt = worldToObj(pt);
+		Point2D.Double newcenter = worldToObj(center);
+		Point2D.Double newa = worldToObj(a);
+		Point2D.Double newb = worldToObj(b);
+		Point2D.Double newc = worldToObj(c);
+		
+		
+		//draw the circle plus the rotation.
+		//System.out.println("in triangle clicked circle");
+		//double yt = (double) t.getCenter().getY() - t.getHeight()/2 - 30;
+		double minY1 = Math.min(newa.getY(), newb.getY());
+		double realMin = Math.min(minY1, newc.getY());
+		
+		//Point2D.Double newPointt = new Point2D.Double(newcenter.getX()-10, realMin - 30);
+		//System.out.println("circle center is " + newPointt.toString());
+		
+		//draw the circle plus the rotation.
+		//System.out.println("drawing the halo");
+		double y = (double) realMin - 30;
+		Point2D.Double circleCenter = new Point2D.Double(newcenter.getX()-10, y);
+		if((Math.abs(newpt.getX() - circleCenter.getX()) <= 40) && (Math.abs(newpt.getY() - circleCenter.getY()) <= 40)) return center;
 		return null;
 	}
 }

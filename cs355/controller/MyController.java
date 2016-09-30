@@ -18,7 +18,7 @@ public class MyController implements CS355Controller {
 	MyModel mm;
 	MyView mv;
 	
-	//buttons!-------------------------------------------
+	//buttons!
 	public enum Button
 	{
 		NONE, SHAPE, SELECT, ZOOMIN, ZOOMOUT
@@ -41,6 +41,7 @@ public class MyController implements CS355Controller {
 	Point2D.Double thirdPoint = new Point2D.Double();
 	Boolean weSelected;
 	Boolean rotating;
+	Boolean clickedStart;
 	
 	public MyController()
 	{
@@ -51,6 +52,7 @@ public class MyController implements CS355Controller {
 		currDrawingShape = null;
 		weSelected = false;
 		rotating = false;
+		clickedStart = false;
 	}
 	
 	public void setModel(MyModel m)
@@ -83,7 +85,7 @@ public class MyController implements CS355Controller {
 				mm.forceCalls();
 			}
 		}
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 	}
 
 	// Shapes.
@@ -97,7 +99,7 @@ public class MyController implements CS355Controller {
 		currShape = Shape.LINE;
 		reset();
 		currButton = Button.SHAPE;
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 		mm.forceCalls();
 	}
 
@@ -110,7 +112,7 @@ public class MyController implements CS355Controller {
 		currShape = Shape.SQUARE;
 		reset();
 		currButton = Button.SHAPE;
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 		mm.forceCalls();
 	}
 
@@ -123,7 +125,7 @@ public class MyController implements CS355Controller {
 		currShape = Shape.RECTANGLE;
 		reset();
 		currButton = Button.SHAPE;
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 		mm.forceCalls();
 	}
 
@@ -136,7 +138,7 @@ public class MyController implements CS355Controller {
 		currShape = Shape.CIRCLE;
 		reset();
 		currButton = Button.SHAPE;
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 		mm.forceCalls();
 	}
 
@@ -149,7 +151,7 @@ public class MyController implements CS355Controller {
 		currShape = Shape.ELLIPSE;
 		reset();
 		currButton = Button.SHAPE;
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 		mm.forceCalls();
 	}
 
@@ -162,7 +164,7 @@ public class MyController implements CS355Controller {
 		currShape = Shape.TRIANGLE;
 		reset();
 		currButton = Button.SHAPE;
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 		mm.forceCalls();
 	}
 
@@ -174,7 +176,7 @@ public class MyController implements CS355Controller {
 		currShape = Shape.NONE;
 		currButton = Button.SELECT;
 		reset();
-		mv.forceRefreshView();
+		GUIFunctions.refresh();
 		mm.forceCalls();
 		
 	}
@@ -311,7 +313,7 @@ public class MyController implements CS355Controller {
 			currShape = Shape.NONE;
 			currButton = Button.SELECT;
 			reset();
-			mv.forceRefreshView();
+			GUIFunctions.refresh();
 			mm.forceCalls();
 		}
 	}
@@ -395,7 +397,7 @@ public class MyController implements CS355Controller {
 			mm.moveForward(mm.getIndexbyShape(currDrawingShape));
 			currDrawingShape = temp;
 			mv.set_currShapeIndex((mm.getIndexbyShape(currDrawingShape)));
-			mv.forceRefreshView();
+			GUIFunctions.refresh();
 			mm.forceCalls();
 		}
 	}
@@ -413,7 +415,7 @@ public class MyController implements CS355Controller {
 			mm.moveBackward(mm.getIndexbyShape(currDrawingShape));
 			currDrawingShape = temp;
 			mv.set_currShapeIndex((mm.getIndexbyShape(currDrawingShape)));
-			mv.forceRefreshView();
+			GUIFunctions.refresh();
 			mm.forceCalls();
 		}
 	}
@@ -431,7 +433,7 @@ public class MyController implements CS355Controller {
 			mm.moveToFront(mm.getIndexbyShape(currDrawingShape));
 			currDrawingShape = temp;
 			mv.set_currShapeIndex((mm.getIndexbyShape(currDrawingShape)));
-			mv.forceRefreshView();
+			GUIFunctions.refresh();
 			mm.forceCalls();
 		}
 	}
@@ -449,7 +451,7 @@ public class MyController implements CS355Controller {
 			mm.movetoBack(mm.getIndexbyShape(currDrawingShape));
 			currDrawingShape = temp;
 			mv.set_currShapeIndex((mm.getIndexbyShape(currDrawingShape)));
-			mv.forceRefreshView();
+			GUIFunctions.refresh();
 			mm.forceCalls();
 		}
 	}
@@ -604,95 +606,140 @@ public class MyController implements CS355Controller {
 			break;	
 		}
 		
-		switch(currButton)//we be clickin!----------------------------------------------------------------------------------------
+		switch(currButton)//we be clickin!
 		{
 		case SELECT:
 			
-//			firstPoint = new Point2D.Double(e.getX(), e.getY());
-//			if(weSelected)//check again to see if we clicked the circle--------------------------------------------------
-//			{
-//				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
-//				if(pt == null)
-//				{
-//					System.out.println("we clicked and theres nothing!!!!!!!!!!!!!!!!!!!!!");//check again to see if we clicked the circle--
-//					currDrawingShape = null;
-//				}
-//			}
-//			else//if not, we must see if it's a shape seletion only------------------------------------------------------------------
-//			{
-//				currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
-//			}
-			if(rotating)
+			if(weSelected)
 			{
-				System.out.println("in new click");
-				currDrawingShape = mm.clicked(secondPoint, 4);
-				//Point2D.Double pt = currDrawingShape.clickedCircle(secondPoint);
-				firstPoint = null;
-				secondPoint = null;
 				rotating = false;
-			}
-			else currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
-			
-			if(currDrawingShape != null)
-			{
+				//System.out.println("we selected");
 				firstPoint = new Point2D.Double(e.getX(), e.getY());
-				//function to see if we clicked on the rotation circle/ start or endpoint
-				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
-				if(weSelected && pt != null)//--------------------------------------------------------------------------------------weselected
+				cs355.model.drawing.Shape tempClick = mm.clicked(firstPoint, 4);
+				if(currDrawingShape == null)
 				{
-					System.out.println("clicked in the circle");
+					//System.out.println("must have deleted the shape");
+					mv.set_currShapeIndex(-1);
+					currDrawingShape = null;
+					GUIFunctions.refresh();
+					mm.forceCalls();
+					weSelected = false;
+					rotating = false;
+					break;
+				}
+				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
+				if(weSelected && pt != null)
+				{
+					//System.out.println("WESELECTED clicked in the circle");
 					rotating = true;
 					if(currDrawingShape instanceof Line)//lines have two, the others have 1
 					{
-						System.out.println("pressed it's line circle");
+						//System.out.println("WESLECTED pressed it's line circle");
 						//distinguish between top or bottom
 						Line l = (Line) currDrawingShape;
-						if(pt == l.getStart())
-						{
-							//set accordingly
-							System.out.println("clicked on start");
-							firstPoint = l.getEnd();
-							secondPoint = l.getStart();
-							l.setEnd(secondPoint);
-							l.setStart(firstPoint);
-							mm.setShape(mm.getIndexbyShape(currDrawingShape), l);
-							currDrawingShape = l;
-						}
-						else
-						{
-							//set accordingly
-							System.out.println("clicked on end");
-							firstPoint = l.getStart();
-							secondPoint = l.getEnd();
-						}
+						if(pt == l.getStart()) clickedStart = true;
+						firstPoint = l.getStart();
+						secondPoint = l.getEnd();
+
 					}
 					else if(currDrawingShape instanceof Circle){}//nothing for circle
 					else//all other shapes
 					{
-						System.out.println("NOW WE GET TO PROCESS THE ROTATION OF THE OBJECT!!!");
+						//System.out.println("NOW WE GET TO PROCESS THE ROTATION OF THE OBJECT!!!");
 						rotating = true;
-						
 					}
 				}
+				else if(tempClick != null)
+				{
+					//firstPoint = new Point2D.Double(e.getX(), e.getY());
+					//function to see if we clicked on the rotation circle/ start or endpoint
+					//System.out.println("#righthere");
+					currDrawingShape = tempClick;
+					mm.setShape(mm.getIndexbyShape(tempClick), currDrawingShape);
+					mv.set_currShapeIndex(mm.getIndexbyShape(currDrawingShape));
+					
+					Point2D.Double ptt = currDrawingShape.clickedCircle(firstPoint);
+					if(weSelected && pt != null)
+					{
+						//System.out.println("WESELECT clicked in the circle");
+						rotating = true;
+						if(currDrawingShape instanceof Line)//lines have two, the others have 1
+						{
+							//System.out.println("WESELECT pressed it's line circle");
+							//distinguish between top or bottom
+							Line l = (Line) currDrawingShape;
+							if(ptt == l.getStart()) clickedStart = true;
+							firstPoint = l.getStart();
+							secondPoint = l.getEnd();
+						}
+					}
 
-				//draw around it.
-				mv.set_currShapeIndex(mm.getIndexbyShape(currDrawingShape));//highlight that there shape and give it a halo--------------
-				//currDrawingShape.setRotation(Math.PI/3);
-				System.out.println("Got a shape " + mm.getIndexbyShape(currDrawingShape));
-				GUIFunctions.changeSelectedColor(currDrawingShape.getColor());
-				mm.currColor = currDrawingShape.getColor(); 
-				mv.forceRefreshView();
-				mm.forceCalls();
-				
-				weSelected = true;
+
+					//draw around it.
+					mv.set_currShapeIndex(mm.getIndexbyShape(currDrawingShape));
+					//currDrawingShape.setRotation(Math.PI/3);
+					//System.out.println("WESELECT Got a shape " + mm.getIndexbyShape(currDrawingShape));
+					GUIFunctions.changeSelectedColor(currDrawingShape.getColor());
+					mm.currColor = currDrawingShape.getColor(); 
+					GUIFunctions.refresh();
+					mm.forceCalls();
+
+					weSelected = true;
+				}
+				else
+				{
+					mv.set_currShapeIndex(-1);
+					currDrawingShape = null;
+					GUIFunctions.refresh();
+					mm.forceCalls();
+					weSelected = false;
+					rotating = false;
+				}
+
 			}
 			else
 			{
-				mv.set_currShapeIndex(-1);
-				mv.forceRefreshView();
-				mm.forceCalls();
-				weSelected = false;
-				rotating = false;
+				currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
+				if(currDrawingShape != null)
+				{
+					firstPoint = new Point2D.Double(e.getX(), e.getY());
+					//function to see if we clicked on the rotation circle/ start or endpoint
+					Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
+					if(weSelected && pt != null)
+					{
+						//System.out.println("clicked in the circle");
+						rotating = true;
+						if(currDrawingShape instanceof Line)//lines have two, the others have 1
+						{
+							//System.out.println("pressed it's line circle");
+							//distinguish between top or bottom
+							Line l = (Line) currDrawingShape;
+							if(pt == l.getStart()) clickedStart = true;
+							firstPoint = l.getStart();
+							secondPoint = l.getEnd();
+
+						}
+					}
+					//draw around it.
+					mv.set_currShapeIndex(mm.getIndexbyShape(currDrawingShape));
+					//currDrawingShape.setRotation(Math.PI/3);
+					//System.out.println("Got a shape " + mm.getIndexbyShape(currDrawingShape));
+					GUIFunctions.changeSelectedColor(currDrawingShape.getColor());
+					mm.currColor = currDrawingShape.getColor(); 
+					GUIFunctions.refresh();
+					mm.forceCalls();
+
+					weSelected = true;
+				}
+				else
+				{
+					mv.set_currShapeIndex(-1);
+					GUIFunctions.refresh();
+					mm.forceCalls();
+					weSelected = false;
+					rotating = false;
+					currDrawingShape = null;
+				}
 			}
 			break;
 		}
@@ -711,7 +758,7 @@ public class MyController implements CS355Controller {
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
 				Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 				mm.setShape(0, currLine);
-				mv.forceRefreshView();
+				GUIFunctions.refresh();
 				//mm.addShape(currLine);
 				reset();
 			}
@@ -743,7 +790,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor, centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -757,7 +804,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor, centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				} 
@@ -774,7 +821,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor, centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -788,7 +835,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor,centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				}
@@ -817,7 +864,7 @@ public class MyController implements CS355Controller {
 							(secondPoint.getX() - firstPoint.getX()), 
 							(secondPoint.getY() - firstPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() > secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -832,7 +879,7 @@ public class MyController implements CS355Controller {
 							(firstPoint.getX() - secondPoint.getX()), 
 							(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -849,7 +896,7 @@ public class MyController implements CS355Controller {
 							Math.abs(firstPoint.getX() - secondPoint.getX()), 
 							Math.abs(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else
@@ -866,7 +913,7 @@ public class MyController implements CS355Controller {
 							Math.abs(secondPoint.getX() - firstPoint.getX()), 
 							Math.abs(secondPoint.getY() - firstPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				reset();
@@ -893,7 +940,7 @@ public class MyController implements CS355Controller {
 						//System.out.println("Circle use orig firstPoint");
 						Circle currCircle = new Circle(mm.currColor,firstPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -902,7 +949,7 @@ public class MyController implements CS355Controller {
 						Point2D.Double tempPoint = new Point2D.Double(firstPoint.getX(),(firstPoint.getY() - length));					
 						Circle currCircle = new Circle(mm.currColor, tempPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				} 
@@ -914,7 +961,7 @@ public class MyController implements CS355Controller {
 						Point2D.Double tempPoint = new Point2D.Double(firstPoint.getX() - length, firstPoint.getY());
 						Circle currCircle = new Circle(mm.currColor, tempPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -923,7 +970,7 @@ public class MyController implements CS355Controller {
 						Point2D.Double tempPoint = new Point2D.Double(firstPoint.getX() - length, firstPoint.getY() - length);
 						Circle currCircle = new Circle(mm.currColor, tempPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				}
@@ -946,7 +993,7 @@ public class MyController implements CS355Controller {
 							secondPoint.getX() - firstPoint.getX(),
 							secondPoint.getY() - firstPoint.getY());
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() > secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -957,7 +1004,7 @@ public class MyController implements CS355Controller {
 							(firstPoint.getX() - secondPoint.getX()), 
 							(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -974,7 +1021,7 @@ public class MyController implements CS355Controller {
 							Math.abs(firstPoint.getX() - secondPoint.getX()), 
 							Math.abs(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else
@@ -986,7 +1033,7 @@ public class MyController implements CS355Controller {
 							Math.abs(secondPoint.getX() - firstPoint.getX()), 
 							Math.abs(secondPoint.getY() - firstPoint.getY()));
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				reset();
@@ -997,12 +1044,13 @@ public class MyController implements CS355Controller {
 			break;
 		}
 		
-		switch(currButton)//we be clickin!--------------------------------------------------------------------------------------------
+		switch(currButton)
 		{
 			case SELECT:
 			{
-				System.out.println("releasing the shape.");// size is " + mm.getShapesListSize());
+				//System.out.println("releasing the shape.");// size is " + mm.getShapesListSize());
 				//rotating = false;
+				clickedStart = false;
 				break;
 			}
 		}
@@ -1027,7 +1075,7 @@ public class MyController implements CS355Controller {
 				//mm.addShape(currLine);
 				//currDrawingShape = currLine;
 				mm.setShape(0, currLine);
-				mv.forceRefreshView();
+				GUIFunctions.refresh();
 				
 				//currentDrawingShape
 				//weDragging = true;
@@ -1058,7 +1106,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor,centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -1072,7 +1120,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor, centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				} 
@@ -1089,7 +1137,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor, centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -1103,7 +1151,7 @@ public class MyController implements CS355Controller {
 						
 						Square currSquare = new Square(mm.currColor, centerPoint, length);
 						mm.setShape(0, currSquare);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				}
@@ -1134,7 +1182,7 @@ public class MyController implements CS355Controller {
 							(secondPoint.getX() - firstPoint.getX()), 
 							(secondPoint.getY() - firstPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() > secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -1150,7 +1198,7 @@ public class MyController implements CS355Controller {
 							(firstPoint.getX() - secondPoint.getX()), 
 							(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -1167,7 +1215,7 @@ public class MyController implements CS355Controller {
 							Math.abs(firstPoint.getX() - secondPoint.getX()), 
 							Math.abs(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else//(firstPoint.getX() > secondPoint.getX() && firstPoint.getY() < secondPoint.getY())
@@ -1184,7 +1232,7 @@ public class MyController implements CS355Controller {
 							Math.abs(secondPoint.getX() - firstPoint.getX()), 
 							Math.abs(secondPoint.getY() - firstPoint.getY()));
 					mm.setShape(0, currRec);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				//weDragging = true;
@@ -1210,7 +1258,7 @@ public class MyController implements CS355Controller {
 						//System.out.println("circle use orig firstPoint");
 						Circle currCircle = new Circle(mm.currColor,firstPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -1219,7 +1267,7 @@ public class MyController implements CS355Controller {
 						Point2D.Double tempPoint = new Point2D.Double(firstPoint.getX(),(firstPoint.getY() - length));
 						Circle currCircle = new Circle(mm.currColor, tempPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				} 
@@ -1231,7 +1279,7 @@ public class MyController implements CS355Controller {
 						Point2D.Double tempPoint = new Point2D.Double(firstPoint.getX() - length, firstPoint.getY());
 						Circle currCircle = new Circle(mm.currColor, tempPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					} 
 					else 
@@ -1240,7 +1288,7 @@ public class MyController implements CS355Controller {
 						Point2D.Double tempPoint = new Point2D.Double(firstPoint.getX() - length, firstPoint.getY() - length);
 						Circle currCircle = new Circle(mm.currColor, tempPoint, length);
 						mm.setShape(0, currCircle);
-						mv.forceRefreshView();
+						GUIFunctions.refresh();
 						//mm.addShape(currLine);
 					}
 				}
@@ -1265,7 +1313,7 @@ public class MyController implements CS355Controller {
 							secondPoint.getX() - firstPoint.getX(),
 							secondPoint.getY() - firstPoint.getY());
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() > secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -1276,7 +1324,7 @@ public class MyController implements CS355Controller {
 							(firstPoint.getX() - secondPoint.getX()), 
 							(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() > secondPoint.getY())
@@ -1288,7 +1336,7 @@ public class MyController implements CS355Controller {
 							Math.abs(firstPoint.getX() - secondPoint.getX()), 
 							Math.abs(firstPoint.getY() - secondPoint.getY()));
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				else
@@ -1300,7 +1348,7 @@ public class MyController implements CS355Controller {
 							Math.abs(secondPoint.getX() - firstPoint.getX()), 
 							Math.abs(secondPoint.getY() - firstPoint.getY()));
 					mm.setShape(0, currEllipse);
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 					//mm.addShape(currLine);
 				}
 				//weDragging = true;
@@ -1311,65 +1359,71 @@ public class MyController implements CS355Controller {
 			break;
 		}
 		
-		switch(currButton)//we be clickin!--------------------------------------------------------------------------------------------
+		switch(currButton)
 		{
 		case SELECT:			
 
 			if(currDrawingShape != null)
 			{
-				System.out.println("moving");
-				//rotating---------------------------------------------------------------------------------------------------------rotating
+				//System.out.println("moving");
 				if(rotating == true)
 				{
 					//System.out.println("rotating");
 					if(currDrawingShape instanceof Line)//lines have two, the others have 1
 					{
-						System.out.println("it's line circle");
-						System.out.println("dragged the end of line");
+						//System.out.println("it's line circle");
+						//System.out.println("dragged the end of line");
 
-						secondPoint = new Point2D.Double(e.getX(), e.getY());
-						Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
+						if(clickedStart)
+						{
+							firstPoint = new Point2D.Double(e.getX(), e.getY());
+							Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
+							mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
+							mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
+							currDrawingShape = currLine;
+						}
+						else
+						{
+							secondPoint = new Point2D.Double(e.getX(), e.getY());
+							Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
+							mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
+							mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
+							currDrawingShape = currLine;
+						}
 						//mm.addShape(currLine);
-						mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
-						mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
-						currDrawingShape = currLine;
-						mv.forceRefreshView();
+						//mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
+						//mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
+						//currDrawingShape = currLine;
+						GUIFunctions.refresh();
 					}
 					else if(currDrawingShape instanceof Circle){}//lines have two, the others have 1
 					else
 					{
-						System.out.println("We are rotating now!");
+						//System.out.println("We are rotating now!");
 						secondPoint = new Point2D.Double(e.getX(), e.getY());
-						
-//						double deltaY = (firstPoint.getY() - secondPoint.getY());
-//					    double deltaX = (secondPoint.getX() - firstPoint.getX());
-//					    double result = Math.toDegrees(Math.atan2(deltaY, deltaX)); 
-//					    double rotAngle =  (result < 0) ? (360d + result) : result;
-//						System.out.println("Angle is " + rotAngle); 
 						
 						Double rotAngle = Math.atan2(secondPoint.getX() - currDrawingShape.getCenter().getX(), 
 								-secondPoint.getY() + currDrawingShape.getCenter().getY());
 						// and to make it count 0-360
-						if (rotAngle < 0) {rotAngle += 2 * Math.PI;}
-						System.out.println("Angle is " + rotAngle); 
+						if (rotAngle < 0) rotAngle += 2 * Math.PI;
+						//System.out.println("Angle is " + rotAngle); 
 						currDrawingShape.setRotation(rotAngle);
 						
 						mm.setShape(mm.getIndexbyShape(currDrawingShape), currDrawingShape);
 						mv.set_currShapeIndex(mm.getIndexbyShape(currDrawingShape));
-						//currDrawingShape = currLine;
-						mv.forceRefreshView();
+						//currDrawingShape = temp;
+						GUIFunctions.refresh();
 					}
 				}
 				else
 				{
-					//calling the new translate function---------------------------------------------------------------------------------
-					System.out.println("Setting the shape and such");
+					//System.out.println("Setting the shape and such");
 					secondPoint = new Point2D.Double(e.getX(), e.getY());
 					currDrawingShape.translate(firstPoint, secondPoint);
 					mm.setShape(mm.getIndexbyShape(currDrawingShape), currDrawingShape);
 					//for moving again
 					firstPoint = secondPoint;
-					mv.forceRefreshView();
+					GUIFunctions.refresh();
 				}
 			}
 			break;
