@@ -24,11 +24,11 @@ public class DrawingEllipse {
 		g2d.fillOval((int) elli.getCenter().getX() -  (int) elli.getWidth()/2, (int) elli.getCenter().getY() - (int) elli.getHeight()/2, (int) elli.getWidth(), (int) elli.getHeight());
 	}
 	
-	public void drawOutline()
+	public void drawOutline(double viewScale)
 	{
 		//draw the box
 		g2d.setColor(new Color(255, 196, 0));
-		float thickness = 2;
+		float thickness = (float) (2.5 * (100/viewScale));
 		Stroke oldStroke = g2d.getStroke();
 		g2d.setStroke(new BasicStroke(thickness));
 		g2d.drawRect((int) elli.getCenter().getX() -  (int) elli.getWidth()/2, (int) elli.getCenter().getY() - (int) elli.getHeight()/2, (int) elli.getWidth(), (int) elli.getHeight());	

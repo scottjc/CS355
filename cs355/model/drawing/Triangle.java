@@ -95,7 +95,7 @@ public class Triangle extends Shape {
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
 
-		//get the transformed points for center and for this point-------------------------------------------------------------------------
+		//get the transformed points for center and for this point
 		Point2D.Double newpt = worldToObj(pt);
 		Point2D.Double newa = worldToObj(a);
 		Point2D.Double newb = worldToObj(b);
@@ -127,13 +127,12 @@ public class Triangle extends Shape {
 	//my functions--------------------------------------------------------------------------------------------------------------
 	public Point2D.Double worldToObj(Point2D.Double pt)
 	{
-		//do inverse transform
-		AffineTransform worldToObj = new AffineTransform();
-		worldToObj.rotate(-this.rotation);
-		worldToObj.translate(-center.getX(), -center.getY());
+		//put into a matrix 
+		//System.out.println("In wto Trangle");
+		AffineTransform transAndRot = new AffineTransform(Math.cos(this.rotation),Math.sin(-this.rotation),Math.sin(this.rotation),Math.cos(this.rotation),-center.getX(),-center.getY());//the first 6 00,10,01,11,02,12
+		//AffineTransform concat = translation.concatenate(T);//correct order?
 		Point2D.Double obCoord = new Point2D.Double();
-		worldToObj.transform(pt, obCoord);
-		//System.out.println(obCoord);
+		transAndRot.transform(pt, obCoord);
 		return obCoord;
 	}
 	
@@ -165,24 +164,24 @@ public class Triangle extends Shape {
 		setC(newc);
 	}
 	
-	public Point2D.Double clickedCircle(Point2D.Double pt)
+	public Point2D.Double clickedCircle(Point2D.Double pt, double viewScale)
 	{
 		Point2D.Double newpt = worldToObj(pt);
 		Point2D.Double newcenter = worldToObj(center);
 		Point2D.Double newa = worldToObj(a);
 		Point2D.Double newb = worldToObj(b);
 		Point2D.Double newc = worldToObj(c);
-		
-		
+
+
 		//draw the circle plus the rotation.
 		//System.out.println("in triangle clicked circle");
 		//double yt = (double) t.getCenter().getY() - t.getHeight()/2 - 30;
 		double minY1 = Math.min(newa.getY(), newb.getY());
 		double realMin = Math.min(minY1, newc.getY());
-		
+
 		//Point2D.Double newPointt = new Point2D.Double(newcenter.getX()-10, realMin - 30);
 		//System.out.println("circle center is " + newPointt.toString());
-		
+
 		//draw the circle plus the rotation.
 		//System.out.println("drawing the halo");
 		double y = (double) realMin - 30;

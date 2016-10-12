@@ -36,11 +36,11 @@ public class DrawingTriangle {
 		g2d.fillPolygon(x, y, 3);
 	}
 	
-	public void drawOutline()
+	public void drawOutline(double viewScale)
 	{
 		//draw the box
 		g2d.setColor(new Color(255, 196, 0));
-		float thickness = 2;
+		float thickness = (float) (2.5 * (100/viewScale));
 		Stroke oldStroke = g2d.getStroke();
 		g2d.setStroke(new BasicStroke(thickness));
 

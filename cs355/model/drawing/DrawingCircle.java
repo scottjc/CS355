@@ -23,11 +23,11 @@ public class DrawingCircle {
 		g2d.fillOval((int) (cir.getCenter().getX() - cir.getRadius()/2), (int) (cir.getCenter().getY() - cir.getRadius()/2), (int) cir.getRadius(), (int) cir.getRadius());
 	}
 	
-	public void drawOutline()
+	public void drawOutline(double viewScale)
 	{
 		//draw the box
 		g2d.setColor(new Color(255, 196, 0));
-		float thickness = 2;
+		float thickness = (float) (2.5 * (100/viewScale));
 		Stroke oldStroke = g2d.getStroke();
 		g2d.setStroke(new BasicStroke(thickness));
 		g2d.drawOval((int) (cir.getCenter().getX() - cir.getRadius()/2), (int) (cir.getCenter().getY() - cir.getRadius()/2), (int) cir.getRadius(), (int) cir.getRadius());	

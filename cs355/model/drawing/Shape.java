@@ -88,5 +88,5 @@ public abstract class Shape {
 	
 	//myFunctions--------------------------------------------------------------------------------
 	public abstract void translate(Point2D.Double firstPoint, Point2D.Double secondPoint);
-	public abstract Point2D.Double clickedCircle(Point2D.Double pt);
+	public abstract Point2D.Double clickedCircle(Point2D.Double pt, double d);
 }

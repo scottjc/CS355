@@ -76,7 +76,7 @@ public class Rectangle extends Shape {
 	@Override
 	public boolean pointInShape(Point2D.Double pt, double tolerance) {
 		//throw new UnsupportedOperationException("Not supported yet.");
-		//get the transformed points for center and for this point-------------------------------------------------------
+		//get the transformed points for center and for this point
 		Point2D.Double newpt = worldToObj(pt);
 		Point2D.Double newcenter = worldToObj(center);
 		
@@ -88,13 +88,12 @@ public class Rectangle extends Shape {
 	//my functions------------------------------------------------------------------
 	public Point2D.Double worldToObj(Point2D.Double pt)
 	{
-		//do inverse transform
-		AffineTransform worldToObj = new AffineTransform();
-		worldToObj.rotate(-this.rotation);
-		worldToObj.translate(-center.getX(), -center.getY());
+		//put into a matrix
+		//System.out.println("In wto Rectangle");
+		AffineTransform transAndRot = new AffineTransform(Math.cos(this.rotation),Math.sin(-this.rotation),Math.sin(this.rotation),Math.cos(this.rotation),-center.getX(),-center.getY());//the first 6 00,10,01,11,02,12
+		//AffineTransform concat = translation.concatenate(T);//correct order?
 		Point2D.Double obCoord = new Point2D.Double();
-		worldToObj.transform(pt, obCoord);
-		//System.out.println(obCoord);
+		transAndRot.transform(pt, obCoord);
 		return obCoord;
 	}
 
@@ -107,12 +106,11 @@ public class Rectangle extends Shape {
 		setCenter(newCenter);
 	}
 	
-	public Point2D.Double clickedCircle(Point2D.Double pt)
+	public Point2D.Double clickedCircle(Point2D.Double pt, double viewScale)
 	{
 		Point2D.Double newpt = worldToObj(pt);
 		Point2D.Double newcenter = worldToObj(center);
-		
-		
+
 		//draw the circle plus the rotation.
 		//System.out.println("drawing the halo");
 		double y = (double) newcenter.getY() - getHeight()/2 - 30;

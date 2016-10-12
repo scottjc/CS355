@@ -1,6 +1,5 @@
 package cs355.view;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -10,7 +9,7 @@ import java.util.Observable;
 
 import cs355.GUIFunctions;
 
-/**
+/**                                                             
  * This is the interface for the view. Make
  * sure your view implements this interface.
  */
@@ -19,7 +18,6 @@ public class MyView implements ViewRefresher {
 	MyModel mm;
 	Graphics2D g2d;
 	int currShapeIndex;
-	
 	public enum Shape//for helping us see what kind of shape outline we'd like to draw
 	{
 		NONE, LINE, SQUARE, RECTANGLE,
@@ -28,11 +26,17 @@ public class MyView implements ViewRefresher {
 	Shape selectedShape;
 	cs355.model.drawing.Shape outlineShape;
 	
+	double viewScale;//for Lab3-------------------------------------------------------------------------------
+	Point2D.Double originCoords;
+	
 	public MyView()
 	{
 		currShapeIndex = -1;
 		selectedShape = Shape.NONE;
 		outlineShape = null;
+		
+		set_viewScale(100);
+		set_originCoords(new Point2D.Double(768,768));//---------------------------------------------------------
 	}
 	
 	public void setModel(MyModel m)
@@ -55,12 +59,18 @@ public class MyView implements ViewRefresher {
 		//loop through all shapes and draw them!
 		for(int i = mm.getShapes().size()-1; i > -1; i--)
 		{
-			AffineTransform worldToObj = new AffineTransform();
-			worldToObj.translate(mm.getShapes().get(i).getCenter().getX(), mm.getShapes().get(i).getCenter().getY());
-			worldToObj.rotate(mm.getShapes().get(i).getRotation());
-			worldToObj.translate(-mm.getShapes().get(i).getCenter().getX(), -mm.getShapes().get(i).getCenter().getY());
-			g2d.setTransform(worldToObj);
-			//instantiate
+			//put into a matrix -----------------------------------------------------------------------------------------------------------------------
+			//System.out.println("refresh view");
+
+			AffineTransform oTv = new AffineTransform();
+			oTv.concatenate(new AffineTransform(viewScale/100,0,0,viewScale/100, 0, 0));//S of view
+			oTv.concatenate(new AffineTransform(1,0,0,1, -originCoords.getX(), -originCoords.getY()));//T-1 or scroll bar
+			oTv.concatenate(new AffineTransform(1,0,0,1, mm.getShapes().get(i).getCenter().getX(), mm.getShapes().get(i).getCenter().getY()));//T of shape center
+			oTv.concatenate(new AffineTransform(Math.cos(mm.getShapes().get(i).getRotation()),Math.sin(mm.getShapes().get(i).getRotation()),
+					Math.sin(-mm.getShapes().get(i).getRotation()),Math.cos(mm.getShapes().get(i).getRotation()),0,0));//the first 6 00,10,01,11,02,12) R of shape
+			oTv.concatenate(new AffineTransform(1,0,0,1, -mm.getShapes().get(i).getCenter().getX(),-mm.getShapes().get(i).getCenter().getY()));//T of shape center
+			
+			g2d.setTransform(oTv);//-----------------------------------------------------------------------------concat instead
 			
 			if(mm.getShapes().get(i) instanceof Line)
 			{
@@ -70,7 +80,6 @@ public class MyView implements ViewRefresher {
 				
 				if(i == currShapeIndex)
 				{
-					//affine transform for showing this modified shape
 					//System.out.println("Draw line outline");
 					//Square box = new Square();
 					//DrawingSquare dcc = new DrawingSquare(box, g2d, box.getColor());
@@ -140,12 +149,17 @@ public class MyView implements ViewRefresher {
 		}
 		
 		if(outlineShape != null)
-		{
-			AffineTransform worldToObj2 = new AffineTransform();
-			worldToObj2.translate(outlineShape.getCenter().getX(), outlineShape.getCenter().getY());
-			worldToObj2.rotate(outlineShape.getRotation());
-			worldToObj2.translate(-outlineShape.getCenter().getX(), -outlineShape.getCenter().getY());
-			g2d.setTransform(worldToObj2);
+		{		
+			//Object To View transformation
+			AffineTransform oTv = new AffineTransform();
+			oTv.concatenate(new AffineTransform(viewScale/100,0,0,viewScale/100, 0, 0));//S of view
+			oTv.concatenate(new AffineTransform(1,0,0,1, -originCoords.getX(), -originCoords.getY()));//T-1 or scroll bar
+			oTv.concatenate(new AffineTransform(1,0,0,1, outlineShape.getCenter().getX(), outlineShape.getCenter().getY()));//T of shape center
+			oTv.concatenate(new AffineTransform(Math.cos(outlineShape.getRotation()),Math.sin(outlineShape.getRotation()),
+					Math.sin(-outlineShape.getRotation()),Math.cos(outlineShape.getRotation()),0,0));//the first 6 00,10,01,11,02,12) R of shape
+			oTv.concatenate(new AffineTransform(1,0,0,1, -outlineShape.getCenter().getX(),-outlineShape.getCenter().getY()));//T of shape center
+			
+			g2d.setTransform(oTv);//-----------------------------------------------------------------------------concat instead
 		}
 
 		switch(selectedShape)
@@ -155,18 +169,17 @@ public class MyView implements ViewRefresher {
 			Line l =  (Line)outlineShape;
 			Circle c = new Circle(outlineShape.getColor(), new Point2D.Double(l.getStart().getX() - 4, l.getStart().getY() - 4), 10);//color center radius
 			DrawingCircle dccl = new DrawingCircle(c, g2d, outlineShape.getColor());
-			dccl.drawOutline();
+			dccl.drawOutline(viewScale);
 			Circle c1 = new Circle(outlineShape.getColor(), new Point2D.Double(l.getEnd().getX() - 4, l.getEnd().getY() - 4), 10);//color center radius
 			DrawingCircle dccll = new DrawingCircle(c1, g2d, outlineShape.getColor());
-			dccll.drawOutline();
+			dccll.drawOutline(viewScale);
 			break;
 			
 		case TRIANGLE:
-			//affine transform for showing this modified shape
 			//System.out.println("Draw trianlge outline");
 			Triangle t = ((Triangle)outlineShape);
 			DrawingTriangle dcct = new DrawingTriangle((Triangle)outlineShape, g2d, outlineShape.getColor());
-			dcct.drawOutline();
+			dcct.drawOutline(viewScale);
 			
 			//draw the circle plus the rotation.
 			//System.out.println("drawing the halo");
@@ -178,23 +191,21 @@ public class MyView implements ViewRefresher {
 			//System.out.println("circle center is " + newPointt.toString());
 			Circle cc = new Circle(outlineShape.getColor(), newPointt, 20);//color center radius
 			DrawingCircle dccre = new DrawingCircle(cc, g2d, outlineShape.getColor());
-			dccre.drawOutline();
+			dccre.drawOutline(viewScale);
 			
 			break;
 			
 		case CIRCLE:
-			//affine transform for showing this modified shape
 			//System.out.println("Draw circle outline");
 			DrawingCircle dcc1 = new DrawingCircle((Circle)outlineShape, g2d, outlineShape.getColor());
-			dcc1.drawOutline();
+			dcc1.drawOutline(viewScale);
 			break;
 			
 		case RECTANGLE:
-			//affine transform for showing this modified shape
 			//System.out.println("Draw rectangle outline");
 			Rectangle r = ((Rectangle)outlineShape);
 			DrawingRectangle dccree = new DrawingRectangle((Rectangle)outlineShape, g2d, outlineShape.getColor());
-			dccree.drawOutline();
+			dccree.drawOutline(viewScale);
 			
 			//draw the circle plus the rotation.
 			//System.out.println("drawing the halo");
@@ -203,7 +214,7 @@ public class MyView implements ViewRefresher {
 			//System.out.println("circle center is " + newPointrr.toString());
 			Circle ccc = new Circle(outlineShape.getColor(), newPointrr, 20);//color center radius
 			DrawingCircle dccc = new DrawingCircle(ccc, g2d, outlineShape.getColor());
-			dccc.drawOutline();
+			dccc.drawOutline(viewScale);
 			break;
 			
 		case SQUARE:
@@ -211,7 +222,7 @@ public class MyView implements ViewRefresher {
 			//need to apply objToWorld transformations
 			Square s = ((Square)outlineShape);
 			DrawingSquare dcc3 = new DrawingSquare(s, g2d, outlineShape.getColor());
-			dcc3.drawOutline();
+			dcc3.drawOutline(viewScale);
 			
 			//draw the circle plus the rotation.
 			//System.out.println("drawing the halo");
@@ -220,16 +231,14 @@ public class MyView implements ViewRefresher {
 			//System.out.println("circle center is " + newPoint.toString());
 			Circle cccc = new Circle(outlineShape.getColor(), newPoint, 20);//color center radius
 			DrawingCircle dccsq = new DrawingCircle(cccc, g2d, outlineShape.getColor());
-			dccsq.drawOutline();
+			dccsq.drawOutline(viewScale);
 			break;
 			
 		case ELLIPSE:
-
-			//affine transform for showing this modified shape
 			//System.out.println("Draw rectangle outline");
 			Ellipse e = ((Ellipse)outlineShape);//.objToWorld();
 			DrawingEllipse dcce = new DrawingEllipse((Ellipse)outlineShape, g2d, outlineShape.getColor());
-			dcce.drawOutline();
+			dcce.drawOutline(viewScale);
 			
 			//draw the circle plus the rotation.
 			//System.out.println("drawing the halo");
@@ -238,7 +247,7 @@ public class MyView implements ViewRefresher {
 			//System.out.println("circle center is " + newPointe.toString());
 			Circle ccccc = new Circle(outlineShape.getColor(), newPointe, 20);//color center radius
 			DrawingCircle dccel = new DrawingCircle(ccccc, g2d, outlineShape.getColor());
-			dccel.drawOutline();
+			dccel.drawOutline(viewScale);
 			break;
 		}
 		
@@ -254,5 +263,27 @@ public class MyView implements ViewRefresher {
 	public void set_currShapeIndex(int in)
 	{
 		this.currShapeIndex = in;
+	}
+
+	public void set_viewScale(double i) 
+	{
+		this.viewScale = i;
+		
+	}
+
+	public void set_originCoords(java.awt.geom.Point2D.Double double1) 
+	{
+		originCoords = double1;
+		
+	}
+
+	public double get_viewScale() 
+	{
+		return viewScale;
+	}
+	
+	public Point2D.Double get_originCoords() 
+	{
+		return originCoords;
 	}
 }

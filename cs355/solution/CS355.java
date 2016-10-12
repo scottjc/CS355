@@ -30,7 +30,12 @@ public class CS355 {
 		mm.addObserver(mv);
 		mm.currColor = Color.WHITE;
 		GUIFunctions.createCS355Frame(mc, mv);
-
+		
+		//Lab 3 stuff--------------------------------------------------------------------------------------------------------
+		GUIFunctions.setHScrollBarKnob(512);
+		GUIFunctions.setVScrollBarKnob(512);
+		GUIFunctions.setHScrollBarPosit(768);
+		GUIFunctions.setVScrollBarPosit(768);
 		GUIFunctions.refresh();
 	}
 }

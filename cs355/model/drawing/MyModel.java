@@ -274,11 +274,13 @@ public class MyModel extends CS355Drawing {
 	/**
 	 * Sees if we are currently clicking on a shape
 	 */
-	public Shape clicked(Point2D.Double pt, double tolerance)
+	public Shape clicked(Point2D.Double pt, double tolerance, double viewScale, Point2D.Double originCoords)
 	{
 		for(int i = 0; i < shapesList.size(); i++)
 		{
-			if(shapesList.get(i).pointInShape(pt, tolerance))
+			
+			System.out.println("here ya are");
+			if(getShapes().get(i).pointInShape(pt, tolerance))
 			{
 				//do something about it!
 				//System.out.println( "You clicked on" + shapesList.get(i).toString());

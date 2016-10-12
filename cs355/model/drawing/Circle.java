@@ -68,13 +68,12 @@ public class Circle extends Shape {
 	//my functions------------------------------------------------------------------
 	public Point2D.Double worldToObj(Point2D.Double pt)
 	{
-		//do inverse transform
-		AffineTransform worldToObj = new AffineTransform();
-		worldToObj.rotate(-this.rotation);
-		worldToObj.translate(-center.getX(), -center.getY());
+		//put into a matrix --------------------------------------------------------------
+		//System.out.println("In wto Circle");
+		AffineTransform transAndRot = new AffineTransform(Math.cos(this.rotation),Math.sin(-this.rotation),Math.sin(this.rotation),Math.cos(this.rotation),-center.getX(),-center.getY());//the first 6 00,10,01,11,02,12
+		//AffineTransform concat = translation.concatenate(T);//correct order?
 		Point2D.Double obCoord = new Point2D.Double();
-		worldToObj.transform(pt, obCoord);
-		//System.out.println(obCoord);
+		transAndRot.transform(pt, obCoord);
 		return obCoord;
 	}
 
@@ -87,7 +86,7 @@ public class Circle extends Shape {
 		setCenter(newCenter);
 	}
 	
-	public Point2D.Double clickedCircle(Point2D.Double pt)
+	public Point2D.Double clickedCircle(Point2D.Double pt, double viewScale)
 	{
 		return null;
 	}

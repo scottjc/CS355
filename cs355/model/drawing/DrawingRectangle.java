@@ -27,11 +27,11 @@ public class DrawingRectangle {
 				(int)rec.getWidth(), (int)rec.getHeight());
 	}
 	
-	public void drawOutline()
+	public void drawOutline(double viewScale)
 	{
 		//draw the box
 		g2d.setColor(new Color(255, 196, 0));
-		float thickness = 2;
+		float thickness = (float) (2.5 * (100/viewScale));
 		Stroke oldStroke = g2d.getStroke();
 		g2d.setStroke(new BasicStroke(thickness));
 		g2d.drawRect((int)rec.getCenter().getX() - (int)(rec.getWidth()/2), (int)rec.getCenter().getY() - (int)(rec.getHeight()/2), 

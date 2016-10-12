@@ -2,6 +2,7 @@ package cs355.controller;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Iterator;
@@ -21,7 +22,7 @@ public class MyController implements CS355Controller {
 	//buttons!
 	public enum Button
 	{
-		NONE, SHAPE, SELECT, ZOOMIN, ZOOMOUT
+		NONE, SHAPE, SELECT
 	}
 	public enum Shape
 	{
@@ -43,6 +44,10 @@ public class MyController implements CS355Controller {
 	Boolean rotating;
 	Boolean clickedStart;
 	
+	//stuff for lab 3-----------------------------------------------------------------------------
+	int scrollSize;
+	Boolean atMM;
+	
 	public MyController()
 	{
 		currShape = Shape.NONE;
@@ -53,6 +58,9 @@ public class MyController implements CS355Controller {
 		weSelected = false;
 		rotating = false;
 		clickedStart = false;
+		
+		scrollSize = 512;
+		atMM = false;
 	}
 	
 	public void setModel(MyModel m)
@@ -186,11 +194,46 @@ public class MyController implements CS355Controller {
 	/**
 	 * Called when the user hits the zoom in button.
 	 */
-	public void zoomInButtonHit()
+	public void zoomInButtonHit()//---------------------------------------------------------------------must change the viewScale here
 	{
-		currShape = Shape.NONE;
-		currButton = Button.ZOOMIN;
-		reset();
+		//currShape = Shape.NONE;
+		//currButton = Button.ZOOMIN;
+		//reset();
+		//System.out.println("in zoomIN");
+		if(mv.get_viewScale()*2 >= 400)
+		{
+			mv.set_viewScale(400);
+			GUIFunctions.setHScrollBarKnob(126);
+			GUIFunctions.setVScrollBarKnob(126);
+			scrollSize = 126;
+			if(!atMM)
+			{
+				GUIFunctions.setHScrollBarPosit((int)(mv.get_originCoords().getX() + scrollSize/2));
+				GUIFunctions.setVScrollBarPosit((int)(mv.get_originCoords().getY() + scrollSize/2));
+			}
+			//mv.set_originCoords(new Point2D.Double(value, mv.get_originCoords().getY()));
+			//System.out.println(mv.get_originCoords());
+			//System.out.println(mv.get_viewScale());
+			atMM = true;
+		}
+		else
+		{
+			mv.set_viewScale(mv.get_viewScale() * 2);
+			scrollSize = scrollSize / 2;
+			GUIFunctions.setHScrollBarKnob(scrollSize);
+			GUIFunctions.setVScrollBarKnob(scrollSize);
+			GUIFunctions.setHScrollBarPosit((int)(mv.get_originCoords().getX()) + scrollSize/2);
+			GUIFunctions.setVScrollBarPosit((int)(mv.get_originCoords().getY()) + scrollSize/2);
+			//mv.set_originCoords(new Point2D.Double(value, mv.get_originCoords().getY()));
+			System.out.println(mv.get_originCoords());
+			//System.out.println(mv.get_viewScale());
+			atMM = false;
+		}
+		GUIFunctions.setZoomText(mv.get_viewScale()/100);
+		
+		mm.forceCalls();
+		GUIFunctions.refresh();
+		return;
 	}
 
 	/**
@@ -198,18 +241,58 @@ public class MyController implements CS355Controller {
 	 */
 	public void zoomOutButtonHit()
 	{
-		currShape = Shape.NONE;
-		currButton = Button.ZOOMOUT;
-		reset();
+		//currShape = Shape.NONE;
+		//currButton = Button.ZOOMOUT;
+		//reset();
+		System.out.println("in zoomOut");
+		if(mv.get_viewScale()/2 <= 25)
+		{
+			mv.set_viewScale(25);
+			GUIFunctions.setHScrollBarPosit(0);
+			GUIFunctions.setVScrollBarPosit(0);
+			GUIFunctions.setHScrollBarKnob(2048);
+			GUIFunctions.setVScrollBarKnob(2048);
+			scrollSize = 2048;
+			//mv.set_originCoords(new Point2D.Double(value, mv.get_originCoords().getY()));
+			System.out.println(mv.get_originCoords());
+			//System.out.println(mv.get_viewScale());
+			atMM = true;
+		}
+		else
+		{
+			mv.set_viewScale(mv.get_viewScale() / 2);
+			scrollSize = scrollSize * 2;
+			GUIFunctions.setHScrollBarKnob(scrollSize);
+			GUIFunctions.setVScrollBarKnob(scrollSize);
+			GUIFunctions.setHScrollBarPosit((int)mv.get_originCoords().getX() - scrollSize/4);
+			GUIFunctions.setVScrollBarPosit((int)mv.get_originCoords().getY() - scrollSize/4);
+			//mv.set_originCoords(new Point2D.Double(value, mv.get_originCoords().getY()));
+			System.out.println(mv.get_originCoords());
+			//System.out.println(mv.get_viewScale());
+			atMM = false;
+			//put scale on screen
+		}
+		
+		GUIFunctions.setZoomText(mv.get_viewScale()/100);
+		mm.forceCalls();
+		GUIFunctions.refresh();
+		return;		
 	}
 
 	/**
 	 * Called when the horizontal scrollbar position changes.
 	 * @param value = the new position.
 	 */
-	public void hScrollbarChanged(int value)
+	public void hScrollbarChanged(int value)//give us the actual position----------------------------------------------change origin
 	{
-		
+		//System.out.println(" hScrollbarChanged " + value);
+		//originCoord change
+		GUIFunctions.setHScrollBarPosit(value);
+		//GUIFunctions.setVScrollBarPosit(768);
+		mv.set_originCoords(new Point2D.Double(value, mv.get_originCoords().getY()));
+		//System.out.println(mv.get_originCoords());
+		GUIFunctions.refresh();
+		mm.forceCalls();
 	}
 
 	/**
@@ -218,7 +301,14 @@ public class MyController implements CS355Controller {
 	 */
 	public void vScrollbarChanged(int value)
 	{
-		
+		//System.out.println(" vScrollbarChanged " + value);
+		//originCoord change
+		//GUIFunctions.setHScrollBarPosit(768);
+		GUIFunctions.setVScrollBarPosit(value);
+		mv.set_originCoords(new Point2D.Double(mv.get_originCoords().getX(), value));
+		//System.out.println(mv.get_originCoords());
+		GUIFunctions.refresh();
+		mm.forceCalls();
 	}
 
 	// 3D Model.
@@ -503,17 +593,20 @@ public class MyController implements CS355Controller {
 					case FIRSTCLICK:
 						//System.out.println("first tri click");
 						firstPoint = new Point2D.Double(e.getX(), e.getY());
+						firstPoint = vTw(firstPoint);//Lab3-------------------------------------------------------
 						break;
 						
 					case SECONDCLICK:
 						//System.out.println("second tri click");
 						secondPoint = new Point2D.Double(e.getX(), e.getY());
+						secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------
 						break;
 						
 					case THIRDCLICK:
 						//System.out.println("third tri click");
 						//get er drawn
 						thirdPoint = new Point2D.Double(e.getX(), e.getY());
+						thirdPoint = vTw(thirdPoint);//Lab3-------------------------------------------------------
 						
 						//add center point
 						double cx = (firstPoint.getX() + secondPoint.getX() + thirdPoint.getX())/3;
@@ -551,6 +644,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click line");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
+			firstPoint = vTw(firstPoint);//Lab3-----------------------------------------------------------------------
 		
 			Line currLine = new Line(mm.currColor, firstPoint, firstPoint);
 			mm.addShape(currLine);
@@ -563,6 +657,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click square");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
+			firstPoint = vTw(firstPoint);//Lab3------------------------------------------------------------------------
 			
 			Square currSquare = new Square(mm.currColor, firstPoint, 3);
 			mm.addShape(currSquare);
@@ -574,6 +669,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click rect");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
+			firstPoint = vTw(firstPoint);//Lab3------------------------------------------------------------------------------------
 			Rectangle currRec = new Rectangle(mm.currColor, firstPoint, 
 					(firstPoint.getX() - firstPoint.getX()), 
 					(firstPoint.getY() - firstPoint.getY()));
@@ -586,6 +682,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click circle");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
+			firstPoint = vTw(firstPoint);//Lab3---------------------------------------------------------------------
 			Circle currCircle = new Circle(mm.currColor,firstPoint, 0);
 			mm.addShape(currCircle);
 			break;
@@ -596,6 +693,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click ellipse");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
+			firstPoint = vTw(firstPoint);//Lab3-------------------------------------------------------------------------
 			Ellipse currEllipse = new Ellipse(mm.currColor, firstPoint, 
 					firstPoint.getX() - firstPoint.getX(),
 					firstPoint.getY() - firstPoint.getY());
@@ -613,9 +711,12 @@ public class MyController implements CS355Controller {
 			if(weSelected)
 			{
 				rotating = false;
-				//System.out.println("we selected");
 				firstPoint = new Point2D.Double(e.getX(), e.getY());
-				cs355.model.drawing.Shape tempClick = mm.clicked(firstPoint, 4);
+				firstPoint = vTw(firstPoint);//Lab3--------------------------------------------------------------------
+				
+				//System.out.println("CONT we selected");//-----------------------------------------------NOT WORKING!!!!!----------------
+				
+				cs355.model.drawing.Shape tempClick = mm.clicked(firstPoint, 4 * (mv.get_viewScale()/100), mv.get_viewScale(), mv.get_originCoords());
 				if(currDrawingShape == null)
 				{
 					//System.out.println("must have deleted the shape");
@@ -627,7 +728,7 @@ public class MyController implements CS355Controller {
 					rotating = false;
 					break;
 				}
-				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
+				Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint, mv.get_viewScale());
 				if(weSelected && pt != null)
 				{
 					//System.out.println("WESELECTED clicked in the circle");
@@ -658,7 +759,7 @@ public class MyController implements CS355Controller {
 					mm.setShape(mm.getIndexbyShape(tempClick), currDrawingShape);
 					mv.set_currShapeIndex(mm.getIndexbyShape(currDrawingShape));
 					
-					Point2D.Double ptt = currDrawingShape.clickedCircle(firstPoint);
+					Point2D.Double ptt = currDrawingShape.clickedCircle(firstPoint,mv.get_viewScale());
 					if(weSelected && pt != null)
 					{
 						//System.out.println("WESELECT clicked in the circle");
@@ -699,12 +800,17 @@ public class MyController implements CS355Controller {
 			}
 			else
 			{
-				currDrawingShape = mm.clicked(new Point2D.Double(e.getX(), e.getY()), 4);
+				firstPoint = new Point2D.Double(e.getX(), e.getY());
+				firstPoint = vTw(firstPoint);//Lab3-----------------------------------------------------------------------
+				
+				//System.out.println("CONT ELSE we selected");
+								
+				currDrawingShape = mm.clicked(firstPoint, 4, mv.get_viewScale(), mv.get_originCoords());
 				if(currDrawingShape != null)
 				{
-					firstPoint = new Point2D.Double(e.getX(), e.getY());
+					//firstPoint = new Point2D.Double(e.getX(), e.getY());
 					//function to see if we clicked on the rotation circle/ start or endpoint
-					Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint);
+					Point2D.Double pt = currDrawingShape.clickedCircle(firstPoint, mv.get_viewScale());
 					if(weSelected && pt != null)
 					{
 						//System.out.println("clicked in the circle");
@@ -755,7 +861,9 @@ public class MyController implements CS355Controller {
 			{
 				//System.out.println("released the line click");
 				//get er drawn
+				
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
 				Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 				mm.setShape(0, currLine);
 				GUIFunctions.refresh();
@@ -771,6 +879,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("released the square click");
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------------
 
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
@@ -850,6 +959,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("release the rectangle click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------
 
 				if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() < secondPoint.getY())
 				{
@@ -925,6 +1035,7 @@ public class MyController implements CS355Controller {
 			if(currState == State.FIRSTCLICK)
 			{
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3-----------------------------------------------------------------------
 
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
@@ -984,6 +1095,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("release the ellipse click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------------
 
 				if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() < secondPoint.getY())
 				{
@@ -1071,6 +1183,7 @@ public class MyController implements CS355Controller {
 				//if(weDragging == true) mm.deleteShape(0);
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3----------------------------------------------------------------------
 				Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 				//mm.addShape(currLine);
 				//currDrawingShape = currLine;
@@ -1090,6 +1203,7 @@ public class MyController implements CS355Controller {
 	
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
 				double length = Math.min(Math.abs(height), Math.abs(width));
@@ -1166,6 +1280,7 @@ public class MyController implements CS355Controller {
 				////System.out.println("release the rectangle click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3------------------------------------------------------------------------
 				//erase the top shape
 				//if(weDragging == true) mm.deleteShape(0);
 
@@ -1247,6 +1362,7 @@ public class MyController implements CS355Controller {
 				
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3---------------------------------------------------------------------------
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
 				double length = Math.min(Math.abs(height), Math.abs(width));
@@ -1302,6 +1418,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("dragged the ellipse click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
+				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------------
 				//erase the top shape
 				//if(weDragging == true) mm.deleteShape(0);
 
@@ -1377,6 +1494,7 @@ public class MyController implements CS355Controller {
 						if(clickedStart)
 						{
 							firstPoint = new Point2D.Double(e.getX(), e.getY());
+							firstPoint = vTw(firstPoint);//Lab3--------------------------------------------------------------
 							Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 							mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
 							mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
@@ -1385,6 +1503,7 @@ public class MyController implements CS355Controller {
 						else
 						{
 							secondPoint = new Point2D.Double(e.getX(), e.getY());
+							secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
 							Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 							mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
 							mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
@@ -1401,6 +1520,7 @@ public class MyController implements CS355Controller {
 					{
 						//System.out.println("We are rotating now!");
 						secondPoint = new Point2D.Double(e.getX(), e.getY());
+						secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
 						
 						Double rotAngle = Math.atan2(secondPoint.getX() - currDrawingShape.getCenter().getX(), 
 								-secondPoint.getY() + currDrawingShape.getCenter().getY());
@@ -1419,6 +1539,7 @@ public class MyController implements CS355Controller {
 				{
 					//System.out.println("Setting the shape and such");
 					secondPoint = new Point2D.Double(e.getX(), e.getY());
+					secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
 					currDrawingShape.translate(firstPoint, secondPoint);
 					mm.setShape(mm.getIndexbyShape(currDrawingShape), currDrawingShape);
 					//for moving again
@@ -1446,5 +1567,19 @@ public class MyController implements CS355Controller {
 		currDrawingShape = null;
 		mv.set_currShapeIndex(-1);
 		rotating = false;
+	}
+	
+	//Lab3---------------------------------------------------------------------------------------------------------------------
+	Point2D.Double vTw(Point2D.Double pt)
+	{
+		AffineTransform vTw = new AffineTransform();
+		vTw.concatenate(new AffineTransform(1,0,0,1, mv.get_originCoords().getX(), mv.get_originCoords().getY()));//T of scroll bars
+		vTw.concatenate(new AffineTransform(1/(mv.get_viewScale()/100),0,0,1/(mv.get_viewScale()/100), 0, 0));//S-1 of view
+		
+		//apply to this shape
+		Point2D.Double worldCoord = new Point2D.Double();
+		vTw.transform(pt, worldCoord);
+		//System.out.println(pt + " pTw " + worldCoord);
+		return worldCoord;
 	}
 }
