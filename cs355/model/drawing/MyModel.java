@@ -279,7 +279,7 @@ public class MyModel extends CS355Drawing {
 		for(int i = 0; i < shapesList.size(); i++)
 		{
 			
-			System.out.println("here ya are");
+			//System.out.println("here ya are");
 			if(getShapes().get(i).pointInShape(pt, tolerance))
 			{
 				//do something about it!

@@ -5,15 +5,22 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Vector;
+
 import cs355.GUIFunctions;
 import cs355.model.drawing.*;
 
 import cs355.model.drawing.MyModel;
+import cs355.model.scene.CS355Scene;
+import cs355.model.scene.Instance;
+import cs355.model.scene.Point3D;
 import cs355.view.MyView;
 
 public class MyController implements CS355Controller {
-	
+		
 	//Modes
 	//more stuff!!!!!!!!
 	MyModel mm;
@@ -44,9 +51,17 @@ public class MyController implements CS355Controller {
 	Boolean rotating;
 	Boolean clickedStart;
 	
-	//stuff for lab 3-----------------------------------------------------------------------------
+	//stuff for lab 3
 	int scrollSize;
 	Boolean atMM;
+	
+	
+	//Lab5-----------------------------------------------------------------------
+	cs355.model.scene.CS355Scene scene;
+	Boolean threedee;
+	Point3D homePt;
+	Double homeRot;
+	private Random randomNumber = new Random();
 	
 	public MyController()
 	{
@@ -61,6 +76,19 @@ public class MyController implements CS355Controller {
 		
 		scrollSize = 512;
 		atMM = false;
+		
+		//Lab5---------------------------
+		 threedee = false;
+		 scene = new CS355Scene();
+		 homePt = null;
+		 homeRot = 0.0;
+	}
+
+	//Lab5 stuff-----------------------------------------------------
+	//my functions--------------------------------------------------------------
+	public void setScene(cs355.model.scene.CS355Scene s)
+	{
+		scene = s;
 	}
 	
 	public void setModel(MyModel m)
@@ -73,7 +101,6 @@ public class MyController implements CS355Controller {
 		mv = v;
 	}
 
-	// Color.
 	
 	/**
 	 * Called when the user hits the color button.
@@ -194,7 +221,7 @@ public class MyController implements CS355Controller {
 	/**
 	 * Called when the user hits the zoom in button.
 	 */
-	public void zoomInButtonHit()//---------------------------------------------------------------------must change the viewScale here
+	public void zoomInButtonHit()//must change the viewScale here
 	{
 		//currShape = Shape.NONE;
 		//currButton = Button.ZOOMIN;
@@ -283,7 +310,7 @@ public class MyController implements CS355Controller {
 	 * Called when the horizontal scrollbar position changes.
 	 * @param value = the new position.
 	 */
-	public void hScrollbarChanged(int value)//give us the actual position----------------------------------------------change origin
+	public void hScrollbarChanged(int value)//give us the actual position. change origin
 	{
 		//System.out.println(" hScrollbarChanged " + value);
 		//originCoord change
@@ -311,7 +338,7 @@ public class MyController implements CS355Controller {
 		mm.forceCalls();
 	}
 
-	// 3D Model.
+	// 3D Model. -------------------------------------------------------------------------
 
 	/**
 	 * Called to load a scene from a file.
@@ -319,7 +346,24 @@ public class MyController implements CS355Controller {
 	 */
 	public void openScene(File file)
 	{
+		//System.out.println("Open Scene button");
+		scene.open(file);
 		
+		//iterate through all of the instances and assign a color to assign 
+		Vector<Color> colors = new Vector<Color>();
+		for(Instance i  : scene.instances())
+		{
+			Color currColor = new Color(randomNumber.nextFloat(),
+				            randomNumber.nextFloat(), randomNumber.nextFloat());
+			colors.add(currColor);
+		}
+		mv.setColor(colors);
+		
+		homePt = scene.getCameraPosition();
+		homeRot = scene.getCameraRotation();
+		setScene(scene);//put the points into the matrixes.
+		mv.setScene(scene);
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -327,7 +371,12 @@ public class MyController implements CS355Controller {
 	 */
 	public void toggle3DModelDisplay()
 	{
-		
+		//System.out.println("toggle 3E Model Display button");
+		threedee = !threedee;
+		//renderer.setShow(threedee);
+		mv.getRenderer().setShow(threedee);
+		//stuff
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -337,7 +386,146 @@ public class MyController implements CS355Controller {
 	 */
 	public void keyPressed(Iterator<Integer> iterator)
 	{
+		//System.out.println("keyPressed");
+		if(!threedee) return;
 		
+		int i = iterator.next();
+		//System.out.println(i);
+
+		//a Move left
+		//if(Keyboard.isKeyDown(Keyboard.KEY_A))
+		if(i == 65)
+		{
+			//System.out.println("You are pressing A!");
+			//change model
+			//reshapeTrans((float)(translateMatrix[0] + Math.cos(rotateMatrix[0]*(Math.PI/180))), translateMatrix[1], (float)(translateMatrix[2] + Math.sin(rotateMatrix[0]*(Math.PI/180))));
+			
+			Point3D pt = new Point3D((double)scene.getCameraPosition().x - Math.cos(scene.getCameraRotation()*(Math.PI/180))
+									 , (double)scene.getCameraPosition().y
+									 , (double)scene.getCameraPosition().z - Math.sin(scene.getCameraRotation() *(Math.PI/180)));
+			scene.setCameraPosition(pt);
+			scene.setCameraRotation(scene.getCameraRotation());
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
+
+		//d Move right
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_D))
+		else if(i == 68)
+		{
+			//System.out.println("You are pressing D!");
+			//change model
+			//reshapeTrans((float)(translateMatrix[0] - Math.cos(rotateMatrix[0]*(Math.PI/180))), translateMatrix[1], (float)(translateMatrix[2] - Math.sin(rotateMatrix[0]*(Math.PI/180))));
+			
+			Point3D pt = new Point3D((double)scene.getCameraPosition().x + Math.cos(scene.getCameraRotation()*(Math.PI/180))
+									 , (double)scene.getCameraPosition().y
+									 , (double)scene.getCameraPosition().z + Math.sin(scene.getCameraRotation()*(Math.PI/180)));
+			scene.setCameraPosition(pt);
+			scene.setCameraRotation(scene.getCameraRotation());
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
+
+		//w Move forward
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_W))
+		else if(i == 87)
+		{
+			//System.out.println("You are pressing W!");
+			//change model
+			//reshapeTrans((float)(translateMatrix[0] - Math.cos(rotateMatrix[0]*(Math.PI/180))), translateMatrix[1], (float)(translateMatrix[2] + Math.sin(rotateMatrix[0]*(Math.PI/180))));
+			
+			Point3D pt = new Point3D((double)scene.getCameraPosition().x - Math.sin(scene.getCameraRotation()*(Math.PI/180))
+									 , (double)scene.getCameraPosition().y
+									 , (double)scene.getCameraPosition().z + Math.cos(scene.getCameraRotation()*(Math.PI/180)));
+			scene.setCameraPosition(pt);
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
+
+		//s Move backward
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_S))
+		else if(i == 83)
+		{
+			//System.out.println("You are pressing S!");
+			//change model
+			//reshapeTrans((float)(translateMatrix[0] + Math.cos(rotateMatrix[0]*(Math.PI/180))), translateMatrix[1], (float)(translateMatrix[2] - Math.sin(rotateMatrix[0]*(Math.PI/180))));
+			Point3D pt = new Point3D((double)scene.getCameraPosition().x + Math.sin(scene.getCameraRotation()*(Math.PI/180))
+									 , (double)scene.getCameraPosition().y
+									 , (double)scene.getCameraPosition().z - Math.cos(scene.getCameraRotation()*(Math.PI/180)));
+			scene.setCameraPosition(pt);
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
+
+		//q Turn left
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_Q))
+		else if(i == 81)
+		{
+			//System.out.println("You are pressing Q!");
+			//reshapeRotate(rotateMatrix[0] - 1, 0, 1, 0);
+			
+			scene.setCameraRotation(scene.getCameraRotation() + 2);
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
+
+		//e Turn right
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_E))
+		else if(i == 69)
+		{
+			//System.out.println("You are pressing E!");
+			//reshapeRotate(rotateMatrix[0] + 1, 0, 1, 0);
+			
+			scene.setCameraRotation(scene.getCameraRotation() - 2);
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
+
+		//r Move up
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_R))
+		else if(i == 82)
+		{
+			//System.out.println("You are pressing R!");
+			//reshapeTrans(translateMatrix[0], translateMatrix[1] - 1, translateMatrix[2]);
+			Point3D pt = new Point3D((double)scene.getCameraPosition().x
+									 , (double)scene.getCameraPosition().y + 1
+									 , (double)scene.getCameraPosition().z);
+			scene.setCameraPosition(pt);
+			scene.setCameraRotation(scene.getCameraRotation());
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+			
+		}
+
+		//f Move down
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_F))
+		else if(i == 70)
+		{
+			//System.out.println("You are pressing F!");
+			//reshapeTrans(translateMatrix[0], translateMatrix[1] + 1, translateMatrix[2]);
+			Point3D pt = new Point3D((double)scene.getCameraPosition().x
+									 , (double)scene.getCameraPosition().y - 1
+									 , (double)scene.getCameraPosition().z);
+			scene.setCameraPosition(pt);
+			scene.setCameraRotation(scene.getCameraRotation());
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
+
+		//h Return to the original “home” position and orientation
+		//else if(Keyboard.isKeyDown(Keyboard.KEY_H))
+		else if(i == 72)
+		{
+			//System.out.println("You are pressing H!");
+			//reshapeRotate((float)homeRot,0,0,0);
+			//reshapeTrans((float)homePt.x, (float)homePt.y, (float)homePt.z);
+			//Point3D trans = new Point3D((double)translateMatrix[0], (double)translateMatrix[1], (double)translateMatrix[2]);
+			//System.out.println(scene.getCameraPosition() + " " + homePt );
+			scene.setCameraPosition(homePt);
+			scene.setCameraRotation(homeRot);
+			mv.setScene(scene);
+			GUIFunctions.refresh();
+		}
 	}
 
 	// Image.
@@ -593,20 +781,20 @@ public class MyController implements CS355Controller {
 					case FIRSTCLICK:
 						//System.out.println("first tri click");
 						firstPoint = new Point2D.Double(e.getX(), e.getY());
-						firstPoint = vTw(firstPoint);//Lab3-------------------------------------------------------
+						firstPoint = vTw(firstPoint);//Lab3
 						break;
 						
 					case SECONDCLICK:
 						//System.out.println("second tri click");
 						secondPoint = new Point2D.Double(e.getX(), e.getY());
-						secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------
+						secondPoint = vTw(secondPoint);//Lab3
 						break;
 						
 					case THIRDCLICK:
 						//System.out.println("third tri click");
 						//get er drawn
 						thirdPoint = new Point2D.Double(e.getX(), e.getY());
-						thirdPoint = vTw(thirdPoint);//Lab3-------------------------------------------------------
+						thirdPoint = vTw(thirdPoint);//Lab3
 						
 						//add center point
 						double cx = (firstPoint.getX() + secondPoint.getX() + thirdPoint.getX())/3;
@@ -644,7 +832,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click line");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
-			firstPoint = vTw(firstPoint);//Lab3-----------------------------------------------------------------------
+			firstPoint = vTw(firstPoint);//Lab3
 		
 			Line currLine = new Line(mm.currColor, firstPoint, firstPoint);
 			mm.addShape(currLine);
@@ -657,7 +845,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click square");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
-			firstPoint = vTw(firstPoint);//Lab3------------------------------------------------------------------------
+			firstPoint = vTw(firstPoint);//Lab3
 			
 			Square currSquare = new Square(mm.currColor, firstPoint, 3);
 			mm.addShape(currSquare);
@@ -669,7 +857,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click rect");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
-			firstPoint = vTw(firstPoint);//Lab3------------------------------------------------------------------------------------
+			firstPoint = vTw(firstPoint);//Lab3
 			Rectangle currRec = new Rectangle(mm.currColor, firstPoint, 
 					(firstPoint.getX() - firstPoint.getX()), 
 					(firstPoint.getY() - firstPoint.getY()));
@@ -682,7 +870,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click circle");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
-			firstPoint = vTw(firstPoint);//Lab3---------------------------------------------------------------------
+			firstPoint = vTw(firstPoint);//Lab3
 			Circle currCircle = new Circle(mm.currColor,firstPoint, 0);
 			mm.addShape(currCircle);
 			break;
@@ -693,7 +881,7 @@ public class MyController implements CS355Controller {
 
 			//System.out.println("first click ellipse");
 			firstPoint = new Point2D.Double(e.getX(), e.getY());
-			firstPoint = vTw(firstPoint);//Lab3-------------------------------------------------------------------------
+			firstPoint = vTw(firstPoint);//Lab3
 			Ellipse currEllipse = new Ellipse(mm.currColor, firstPoint, 
 					firstPoint.getX() - firstPoint.getX(),
 					firstPoint.getY() - firstPoint.getY());
@@ -712,9 +900,9 @@ public class MyController implements CS355Controller {
 			{
 				rotating = false;
 				firstPoint = new Point2D.Double(e.getX(), e.getY());
-				firstPoint = vTw(firstPoint);//Lab3--------------------------------------------------------------------
+				firstPoint = vTw(firstPoint);//Lab3
 				
-				//System.out.println("CONT we selected");//-----------------------------------------------NOT WORKING!!!!!----------------
+				//System.out.println("CONT we selected");//
 				
 				cs355.model.drawing.Shape tempClick = mm.clicked(firstPoint, 4 * (mv.get_viewScale()/100), mv.get_viewScale(), mv.get_originCoords());
 				if(currDrawingShape == null)
@@ -801,7 +989,7 @@ public class MyController implements CS355Controller {
 			else
 			{
 				firstPoint = new Point2D.Double(e.getX(), e.getY());
-				firstPoint = vTw(firstPoint);//Lab3-----------------------------------------------------------------------
+				firstPoint = vTw(firstPoint);//Lab3
 				
 				//System.out.println("CONT ELSE we selected");
 								
@@ -863,7 +1051,7 @@ public class MyController implements CS355Controller {
 				//get er drawn
 				
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 				Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 				mm.setShape(0, currLine);
 				GUIFunctions.refresh();
@@ -879,7 +1067,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("released the square click");
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
@@ -959,7 +1147,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("release the rectangle click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 
 				if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() < secondPoint.getY())
 				{
@@ -1035,7 +1223,7 @@ public class MyController implements CS355Controller {
 			if(currState == State.FIRSTCLICK)
 			{
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3-----------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
@@ -1095,7 +1283,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("release the ellipse click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 
 				if(firstPoint.getX() < secondPoint.getX() && firstPoint.getY() < secondPoint.getY())
 				{
@@ -1183,7 +1371,7 @@ public class MyController implements CS355Controller {
 				//if(weDragging == true) mm.deleteShape(0);
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3----------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 				Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 				//mm.addShape(currLine);
 				//currDrawingShape = currLine;
@@ -1203,7 +1391,7 @@ public class MyController implements CS355Controller {
 	
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
 				double length = Math.min(Math.abs(height), Math.abs(width));
@@ -1280,7 +1468,7 @@ public class MyController implements CS355Controller {
 				////System.out.println("release the rectangle click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3------------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 				//erase the top shape
 				//if(weDragging == true) mm.deleteShape(0);
 
@@ -1362,7 +1550,7 @@ public class MyController implements CS355Controller {
 				
 				//get er drawn
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3---------------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 				double height = firstPoint.getY() - secondPoint.getY();
 				double width = firstPoint.getX() - secondPoint.getX();
 				double length = Math.min(Math.abs(height), Math.abs(width));
@@ -1418,7 +1606,7 @@ public class MyController implements CS355Controller {
 				//System.out.println("dragged the ellipse click");
 				//p2
 				secondPoint = new Point2D.Double(e.getX(), e.getY());
-				secondPoint = vTw(secondPoint);//Lab3-------------------------------------------------------------------------
+				secondPoint = vTw(secondPoint);//Lab3
 				//erase the top shape
 				//if(weDragging == true) mm.deleteShape(0);
 
@@ -1494,7 +1682,7 @@ public class MyController implements CS355Controller {
 						if(clickedStart)
 						{
 							firstPoint = new Point2D.Double(e.getX(), e.getY());
-							firstPoint = vTw(firstPoint);//Lab3--------------------------------------------------------------
+							firstPoint = vTw(firstPoint);//Lab3
 							Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 							mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
 							mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
@@ -1503,7 +1691,7 @@ public class MyController implements CS355Controller {
 						else
 						{
 							secondPoint = new Point2D.Double(e.getX(), e.getY());
-							secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
+							secondPoint = vTw(secondPoint);//Lab3
 							Line currLine = new Line(mm.currColor, firstPoint, secondPoint);
 							mm.setShape(mm.getIndexbyShape(currDrawingShape), currLine);
 							mv.set_currShapeIndex(mm.getIndexbyShape(currLine));
@@ -1520,7 +1708,7 @@ public class MyController implements CS355Controller {
 					{
 						//System.out.println("We are rotating now!");
 						secondPoint = new Point2D.Double(e.getX(), e.getY());
-						secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
+						secondPoint = vTw(secondPoint);//Lab3
 						
 						Double rotAngle = Math.atan2(secondPoint.getX() - currDrawingShape.getCenter().getX(), 
 								-secondPoint.getY() + currDrawingShape.getCenter().getY());
@@ -1539,7 +1727,7 @@ public class MyController implements CS355Controller {
 				{
 					//System.out.println("Setting the shape and such");
 					secondPoint = new Point2D.Double(e.getX(), e.getY());
-					secondPoint = vTw(secondPoint);//Lab3--------------------------------------------------------------
+					secondPoint = vTw(secondPoint);//Lab3
 					currDrawingShape.translate(firstPoint, secondPoint);
 					mm.setShape(mm.getIndexbyShape(currDrawingShape), currDrawingShape);
 					//for moving again
@@ -1569,7 +1757,7 @@ public class MyController implements CS355Controller {
 		rotating = false;
 	}
 	
-	//Lab3---------------------------------------------------------------------------------------------------------------------
+	//Lab3
 	Point2D.Double vTw(Point2D.Double pt)
 	{
 		AffineTransform vTw = new AffineTransform();

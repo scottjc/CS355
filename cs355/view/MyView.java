@@ -1,11 +1,13 @@
 package cs355.view;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import cs355.model.drawing.*;//our shape objects
 import java.util.Observable;
+import java.util.Vector;
 
 import cs355.GUIFunctions;
 
@@ -26,8 +28,13 @@ public class MyView implements ViewRefresher {
 	Shape selectedShape;
 	cs355.model.drawing.Shape outlineShape;
 	
-	double viewScale;//for Lab3-------------------------------------------------------------------------------
+	double viewScale;//for Lab3
 	Point2D.Double originCoords;
+	
+	//Lab5-----------------------------------------------------------
+	cs355.model.scene.Render3D renderer;
+	cs355.model.scene.CS355Scene scene;
+	Vector<Color> colors = new Vector<Color>();
 	
 	public MyView()
 	{
@@ -36,7 +43,29 @@ public class MyView implements ViewRefresher {
 		outlineShape = null;
 		
 		set_viewScale(100);
-		set_originCoords(new Point2D.Double(768,768));//---------------------------------------------------------
+		set_originCoords(new Point2D.Double(768,768));
+	}
+	
+	//Lab5 stuff-----------------------------------------------------
+	
+	public void setRenderer(cs355.model.scene.Render3D r)
+	{
+		renderer = r;
+	
+	}
+	public void setScene(cs355.model.scene.CS355Scene s)
+	{
+		scene = s;
+	}
+	public void setColor(Vector<Color> c)
+	{
+		this.colors = c;
+	}
+	
+	//Not Lab 5
+	public cs355.model.scene.Render3D getRenderer()
+	{
+		return renderer;
 	}
 	
 	public void setModel(MyModel m)
@@ -50,7 +79,6 @@ public class MyView implements ViewRefresher {
 	 */
 	public void refreshView(Graphics2D g2d)
 	{
-		//System.out.println("refreshView");
 		this.g2d = g2d;
 		selectedShape = Shape.NONE;
 		outlineShape = null;
@@ -59,7 +87,7 @@ public class MyView implements ViewRefresher {
 		//loop through all shapes and draw them!
 		for(int i = mm.getShapes().size()-1; i > -1; i--)
 		{
-			//put into a matrix -----------------------------------------------------------------------------------------------------------------------
+			//put into a matrix
 			//System.out.println("refresh view");
 
 			AffineTransform oTv = new AffineTransform();
@@ -70,7 +98,7 @@ public class MyView implements ViewRefresher {
 					Math.sin(-mm.getShapes().get(i).getRotation()),Math.cos(mm.getShapes().get(i).getRotation()),0,0));//the first 6 00,10,01,11,02,12) R of shape
 			oTv.concatenate(new AffineTransform(1,0,0,1, -mm.getShapes().get(i).getCenter().getX(),-mm.getShapes().get(i).getCenter().getY()));//T of shape center
 			
-			g2d.setTransform(oTv);//-----------------------------------------------------------------------------concat instead
+			g2d.setTransform(oTv);//concat instead
 			
 			if(mm.getShapes().get(i) instanceof Line)
 			{
@@ -159,7 +187,7 @@ public class MyView implements ViewRefresher {
 					Math.sin(-outlineShape.getRotation()),Math.cos(outlineShape.getRotation()),0,0));//the first 6 00,10,01,11,02,12) R of shape
 			oTv.concatenate(new AffineTransform(1,0,0,1, -outlineShape.getCenter().getX(),-outlineShape.getCenter().getY()));//T of shape center
 			
-			g2d.setTransform(oTv);//-----------------------------------------------------------------------------concat instead
+			g2d.setTransform(oTv);//concat instead
 		}
 
 		switch(selectedShape)
@@ -251,6 +279,18 @@ public class MyView implements ViewRefresher {
 			break;
 		}
 		
+		//Lab5 stuff---------------------------------------------
+		if(renderer.getShow())
+		{
+			//System.out.println("it's true");
+			//stuff about it----------------------------------------
+			//Object To View transformation
+			AffineTransform oTvv = new AffineTransform();
+			oTvv.concatenate(new AffineTransform(viewScale/100,0,0,viewScale/100, 0, 0));//S of view
+			oTvv.concatenate(new AffineTransform(1,0,0,1, -originCoords.getX(), -originCoords.getY()));//T-1 or scroll bar
+			g2d.setTransform(oTvv);//concat instead
+			renderer.process(scene, g2d, colors);
+		}
 		
 	}
 
@@ -259,7 +299,7 @@ public class MyView implements ViewRefresher {
 		GUIFunctions.refresh();
 	}
 	
-	//my functions---------------------------------------
+	//my functions------------------------------------------------------------
 	public void set_currShapeIndex(int in)
 	{
 		this.currShapeIndex = in;
