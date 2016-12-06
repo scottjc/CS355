@@ -2,8 +2,10 @@ package cs355.view;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImageOp;
 
 import cs355.model.drawing.*;//our shape objects
 import java.util.Observable;
@@ -31,10 +33,14 @@ public class MyView implements ViewRefresher {
 	double viewScale;//for Lab3
 	Point2D.Double originCoords;
 	
-	//Lab5-----------------------------------------------------------
+	//Lab5
 	cs355.model.scene.Render3D renderer;
 	cs355.model.scene.CS355Scene scene;
 	Vector<Color> colors = new Vector<Color>();
+	
+	//Lab6
+	cs355.model.image.MyImage imagey;
+	Boolean drawMe;
 	
 	public MyView()
 	{
@@ -44,10 +50,22 @@ public class MyView implements ViewRefresher {
 		
 		set_viewScale(100);
 		set_originCoords(new Point2D.Double(768,768));
+		
+		//Lab6------------------------------------------------
+		drawMe = false;
 	}
 	
-	//Lab5 stuff-----------------------------------------------------
+	//Lab6 stuff-------------------------------------------------
+	public void setDrawMe(Boolean b)
+	{
+		drawMe = b;
+	}
+	public void setImagey(cs355.model.image.MyImage i)
+	{
+		imagey = i;
+	}
 	
+	//Lab5 stuff
 	public void setRenderer(cs355.model.scene.Render3D r)
 	{
 		renderer = r;
@@ -82,6 +100,23 @@ public class MyView implements ViewRefresher {
 		this.g2d = g2d;
 		selectedShape = Shape.NONE;
 		outlineShape = null;
+		
+		//FIRST we must do this
+		//Lab6 stuff-------------------------------------
+		if(imagey.drawMe)
+		{
+				//System.out.println("it's true");
+				//originCoords
+				AffineTransform oTvv = new AffineTransform();
+				oTvv.concatenate(new AffineTransform(viewScale/100,0,0,viewScale/100, 0, 0));//S of view
+//				int AspectRatio = 1;
+//				if(imagey.getWidth() != 0 && imagey.getHeight() != 0) AspectRatio = imagey.getWidth() / imagey.getHeight();
+				oTvv.concatenate(new AffineTransform(1,0,0,1,
+						1024 - imagey.getWidth()/2 - originCoords.getX(), 1024 - imagey.getHeight()/2 - originCoords.getY()));//T-1 of scroll bar
+				g2d.setTransform(oTvv);//concat instead
+				//draw the image
+				g2d.drawImage(imagey.getImage(), 0, 0, null);
+		}
 		
 		//change all of the shapes into drawing shapes
 		//loop through all shapes and draw them!
@@ -279,11 +314,11 @@ public class MyView implements ViewRefresher {
 			break;
 		}
 		
-		//Lab5 stuff---------------------------------------------
+		//Lab5 stuff
 		if(renderer.getShow())
 		{
 			//System.out.println("it's true");
-			//stuff about it----------------------------------------
+			//stuff about it
 			//Object To View transformation
 			AffineTransform oTvv = new AffineTransform();
 			oTvv.concatenate(new AffineTransform(viewScale/100,0,0,viewScale/100, 0, 0));//S of view
@@ -291,7 +326,6 @@ public class MyView implements ViewRefresher {
 			g2d.setTransform(oTvv);//concat instead
 			renderer.process(scene, g2d, colors);
 		}
-		
 	}
 
 	@Override

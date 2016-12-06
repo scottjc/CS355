@@ -56,12 +56,15 @@ public class MyController implements CS355Controller {
 	Boolean atMM;
 	
 	
-	//Lab5-----------------------------------------------------------------------
+	//Lab5
 	cs355.model.scene.CS355Scene scene;
 	Boolean threedee;
 	Point3D homePt;
 	Double homeRot;
 	private Random randomNumber = new Random();
+	
+	//Lab6 -----------------------------------------
+	cs355.model.image.MyImage imagey;
 	
 	public MyController()
 	{
@@ -77,15 +80,23 @@ public class MyController implements CS355Controller {
 		scrollSize = 512;
 		atMM = false;
 		
-		//Lab5---------------------------
-		 threedee = false;
-		 scene = new CS355Scene();
-		 homePt = null;
-		 homeRot = 0.0;
+		//Lab5
+		threedee = false;
+		scene = new CS355Scene();
+		homePt = null;
+		homeRot = 0.0;
+		 
+		//Lab6-------------------
+			 
+	}
+	//Lab6 stuff-------------------------------------------------
+	public void setImagey(cs355.model.image.MyImage i)
+	{
+		imagey = i;
 	}
 
-	//Lab5 stuff-----------------------------------------------------
-	//my functions--------------------------------------------------------------
+	//Lab5 stuff
+	//my functions
 	public void setScene(cs355.model.scene.CS355Scene s)
 	{
 		scene = s;
@@ -100,7 +111,7 @@ public class MyController implements CS355Controller {
 	{
 		mv = v;
 	}
-
+	
 	
 	/**
 	 * Called when the user hits the color button.
@@ -537,6 +548,9 @@ public class MyController implements CS355Controller {
 	public void openImage(File file)
 	{
 		//last lab
+		imagey.open(file);
+		GUIFunctions.refresh();
+		
 	}
 
 	/**
@@ -546,6 +560,8 @@ public class MyController implements CS355Controller {
 	public void saveImage(File file)
 	{
 		//last lab
+		imagey.save(file);
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -553,7 +569,10 @@ public class MyController implements CS355Controller {
 	 */
 	public void toggleBackgroundDisplay()
 	{
-		
+		//last lab
+		//System.out.println("toggle Background Display button");
+		imagey.drawMe = !imagey.drawMe;
+		GUIFunctions.refresh();
 	}
 
 	// File menu.
@@ -604,7 +623,9 @@ public class MyController implements CS355Controller {
 	 */
 	public void doEdgeDetection()
 	{
-		
+		//last lab
+		imagey.edgeDetection();
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -613,7 +634,9 @@ public class MyController implements CS355Controller {
 	 */
 	public void doSharpen()
 	{
-		
+		//last lab
+		imagey.sharpen();
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -622,7 +645,9 @@ public class MyController implements CS355Controller {
 	 */
 	public void doMedianBlur()
 	{
-		
+		//last lab
+		imagey.medianBlur();
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -631,7 +656,9 @@ public class MyController implements CS355Controller {
 	 */
 	public void doUniformBlur()
 	{
-		
+		//last lab
+		imagey.uniformBlur();
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -639,7 +666,9 @@ public class MyController implements CS355Controller {
 	 */
 	public void doGrayscale()
 	{
-		
+		//last lab
+		imagey.grayscale();
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -648,7 +677,9 @@ public class MyController implements CS355Controller {
 	 */
 	public void doChangeContrast(int contrastAmountNum)
 	{
-		
+		//last lab
+		imagey.contrast(contrastAmountNum);
+		GUIFunctions.refresh();
 	}
 
 	/**
@@ -657,7 +688,9 @@ public class MyController implements CS355Controller {
 	 */
 	public void doChangeBrightness(int brightnessAmountNum)
 	{
-		
+		//last lab
+		imagey.brightness(brightnessAmountNum);
+		GUIFunctions.refresh();
 	}
 
 	// Object menu.

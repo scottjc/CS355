@@ -5,6 +5,7 @@ import java.awt.Color;
 import cs355.GUIFunctions;
 import cs355.controller.MyController;
 import cs355.model.drawing.MyModel;
+import cs355.model.image.MyImage;
 import cs355.model.scene.Point3D;
 import cs355.view.MyView;
 
@@ -33,12 +34,17 @@ public class CS355 {
 		GUIFunctions.createCS355Frame(mc, mv);
 		
 		
-		//Lab5 stuff --------------------------------------------
+		//Lab5 stuff
 		cs355.model.scene.Render3D renderer = new cs355.model.scene.Render3D();
 		cs355.model.scene.CS355Scene scene = new cs355.model.scene.CS355Scene();
 		mc.setScene(scene);
 		mv.setScene(scene);
 		mv.setRenderer(renderer);
+		
+		//Lab6 stuff -----------------------------------------------
+		cs355.model.image.MyImage imagey = new MyImage();
+		mc.setImagey(imagey);
+		mv.setImagey(imagey);
 		
 		//Lab 3 stuff
 		GUIFunctions.setHScrollBarKnob(512);
